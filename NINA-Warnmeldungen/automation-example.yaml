@@ -1,0 +1,70 @@
+# INFO: Diese Automation enthält spezifische Konfigurationen für meine Home-Assistant Instanz
+# Zum einrichten einer spezifischen Konfiguration deiner Instanz, nutze bitte den passenden Blueprint
+# Diese Automation soll nur als Praktisches Beispiel dienen.
+
+alias: NINA Warnmeldung Benachrichtigung
+description: ""
+triggers:
+  - entity_id:
+      - binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_1
+      - binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_2
+      - binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_3
+      - binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_4
+      - binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_5
+      - binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_6
+      - binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_7
+    to: "on"
+    trigger: state
+conditions:
+  - alias: Skip the Rest, if "Uptime <= 5 minutes"
+    condition: template
+    value_template: >-
+      {% set uptime_seconds = now()|as_timestamp -
+      states('sensor.uptime')|as_timestamp %} {{ uptime_seconds > 300 }}
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ trigger_severity == 'Moderate' and
+          is_state('input_boolean.nina_warnmeldung_moderat', 'on') }}
+        alias: Severity = Moderate
+      - condition: template
+        value_template: >-
+          {{ trigger_severity == 'Severe' and
+          is_state('input_boolean.nina_warnmeldung_hoch', 'on') }}
+        alias: Severity = Severe
+      - condition: template
+        value_template: >-
+          {{ trigger_severity == 'Extreme' and
+          is_state('input_boolean.nina_warnmeldung_extrem', 'on') }}
+        alias: Severity = Extreme
+    alias: Check Severity & Notification-Configuration
+  - alias: Check affected_areas
+    condition: template
+    value_template: |
+      {{ "Meckenbeuren" in trigger.to_state.attributes.affected_areas 
+      or "Schussen" in trigger.to_state.attributes.affected_areas 
+      or "Bodensee" in trigger.to_state.attributes.affected_areas 
+      or "weitere" in trigger.to_state.attributes.affected_areas
+      or "Württemberg" in trigger.to_state.attributes.affected_areas
+      or "eutschland" in trigger.to_state.attributes.affected_areas }}
+actions:
+  - data:
+      title: NINA Warnmeldung
+      message: "{{ trigger_headline }}"
+      data:
+        notification_icon: mdi:alert-outline
+        tag: "{{ entity_id }}"
+        channel: Alarm
+        actions:
+          - action: URI
+            title: Meldung ansehen (warnung.bund.de)
+            uri: "{{ hyperlink }}"
+    action: script.custom_flexible_notification
+variables:
+  trigger_severity: "{{ trigger.to_state.attributes.severity }}"
+  trigger_headline: "{{ trigger.to_state.attributes.headline }}"
+  entity_id: "{{ trigger.to_state.entity_id }}"
+  hyperlink: https://warnung.bund.de/meldungen/{{ trigger.to_state.attributes.id }}
+mode: parallel
+max: 10

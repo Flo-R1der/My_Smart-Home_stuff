@@ -1,0 +1,30 @@
+# INFO: Diese Yaml ist kein komplettes Dashboard. 
+# Es enthält nur die Karten für die Markdown-Card "NINA Warnmeldungen"
+# REQUIREMENTS: auto-entities Karte muss installiert sein!
+
+type: custom:auto-entities
+show_empty: false
+filter:
+  include:
+    - integration: nina
+      state: "on"
+  exclude:
+    - attributes:
+        headline: "*Vorwarnung*"
+card:
+  type: markdown
+  title: NINA Warnmeldungen
+  content: |-
+    {% for list in config.entities %}
+      {% if state_attr(list.entity, 'severity') == "Extreme" -%} <ha-alert alert-type="error"
+      {%- elif state_attr(list.entity, 'severity') == "Severe" -%} <ha-alert alert-type="warning"
+      {%- else %} <ha-alert alert-type="info" {% endif %}
+      title="{{ state_attr(list.entity, 'headline') }}">
+      {{- state_attr(list.entity, 'description') -}}
+      <br> <br> {% if state_attr(list.entity, 'recommended_actions') != "" %} **Empfohlene Aktionen:**
+      {{ state_attr(list.entity, 'recommended_actions') }} <br> <br> {% endif -%}
+      [Meldung ansehen (warnung.bund.de)](https://warnung.bund.de/meldungen/{{ state_attr(list.entity, 'id') }})
+      {% if state_attr(list.entity, 'expires') != "" -%}
+      Endet: {{ as_datetime(state_attr(list.entity, 'expires')).strftime('%d.%m.%Y - %H:%M') }}
+      {%- endif %} </ha-alert>
+    {% endfor %}
