@@ -1,0 +1,128 @@
+blueprint:
+  name: NINA Benachrichtigungen Blueprint
+  description: >-
+    Sendet Push-Benachrichtigungen beim Auftreten einer Warnmeldung.
+    Hierbei kann die Benachrichtigung in Abhängigkeit der Warnstufe Ein-/Ausgeschaltet werden. 
+    Bitte nutzt auch den **[Uptime](https://www.home-assistant.io/integrations/uptime/)**-Sensor,
+    um Mehrfach-Meldungen nach dem Home Assistant Neustart zu verhindern.
+    Falls Ihr diesen noch nicht eingerichtet habt, könnt ihr das 
+    [mit diesem Link](https://my.home-assistant.io/redirect/config_flow_start?domain=uptime) erledigen.
+  domain: automation
+  author: Flo-R1der (https://github.com/Flo-R1der)
+  homeassistant:
+    min_version: 2024.6.0
+  #source_url: #FIXME
+  input:
+    input_section:
+      name: Warn-Sensoren und Warnstufe einstellen
+      icon: mdi:alert-outline
+      input:
+        warning_sensors:
+          name: Warn-Sensoren
+          description: >-
+            Bitte ALLE alle Sensoren hinzufügen, für die Aktionen ausgeführt werden sollen.
+          selector:
+            entity:
+              integration: nina
+              multiple: true
+        moderate_switch:
+          name: Moderat
+          description: 'Aktionen bei Warnstufe "Moderate" ausführen?'
+          selector:
+            boolean:
+        severe_switch:
+          name: Hoch
+          description: 'Aktionen bei Warnstufe "Severe" ausführen?'
+          selector:
+            boolean:
+        extreme_switch:
+          name: Extrem
+          description: 'Aktionen bei Warnstufe "Extreme" ausführen?'
+          selector:
+            boolean:
+        other_conditions:
+          name: Weitere Bedingungen
+          description: >-
+            Hier können weitere Bedingungen angegeben werden, bevor die Aktionen ausgeführt
+            werden. So kann z.B. die Zeit auf 06:00 - 22:00 begrenzt werden.
+          selector:
+            condition:
+    action_section:
+      name: Aktionen definieren
+      icon: mdi:message-alert-outline
+      input:
+        use_notifynotify:
+          name: Standard-Benachrichtigungen verwenden?
+          description: >-
+            Ist diese Option aktiviert, werden Push-Benachrichtigungen an alle 
+            in Home Assistant registrierte Geräte versendet. Möchtest du lieber deine 
+            eigene Logik implementieren, deaktivieren diese Option.
+          selector:
+            boolean:
+        custom_action:
+          name: Eigene Aktionen definieren
+          description: >-
+            Wer es einfach nur Benachrichtigungen haben möchte, aktiviert die Option oben.
+            Wer jedoch eigene Aktionen nutzen möchte, kann diese hier hinzufügen.
+            Diese werden nach dem `notify.notify` von oben ausgeführt, sofern aktiviert.
+          selector:
+            action:
+
+
+trigger:
+  platform: state
+  entity_id: !input warning_sensors
+  to: 'on'
+
+variables:
+  trigger_severity: "{{ trigger.to_state.attributes.severity|default('none') }}"
+  trigger_headline: "{{ trigger.to_state.attributes.headline|default('empty') }}"
+  hyperlink: https://warnung.bund.de/meldungen/{{trigger.to_state.attributes.id}}
+  moderate_switch: !input moderate_switch
+  severe_switch: !input severe_switch
+  extreme_switch: !input extreme_switch
+  use_notifynotify: !input use_notifynotify
+
+condition:
+- condition: template
+  alias: Breche ab, wenn "Uptime <= 3 minutes"
+  value_template: >-
+    {% set uptime_seconds = now()|as_timestamp - states('sensor.uptime')|as_timestamp %} 
+    {{ uptime_seconds > 180 }}
+- condition: or
+  alias: Prüfe die Severity & zugehörige Schalter
+  conditions:
+  - condition: template
+    value_template: >-
+      {{ trigger_severity == "Moderate" and moderate_switch == true }}
+    alias: Severity = Moderate
+  - condition: template
+    value_template: >-
+      {{ trigger_severity == "Severe" and severe_switch == true }}
+    alias: Severity = Severe
+  - condition: template
+    value_template: >-
+      {{ trigger_severity == "Extreme" and extreme_switch == true }}
+    alias: Severity = Extreme
+
+actions:
+  - if:
+    - condition: template
+      value_template: "{{ use_notifynotify }}"
+    then:
+    - action: notify.notify
+      alias: NINA Warnmeldungen als Push-Nachricht versenden
+      data:
+        title: NINA Warnmeldung
+        message: '{{ trigger_headline }}'
+        data:
+          notification_icon: mdi:alert-outline
+          tag: '{{trigger.to_state.attributes.id}}'
+          channel: Alarm
+          actions:
+          - action: URI
+            title: Meldung ansehen (warnung.bund.de)
+            uri: '{{ hyperlink }}'
+  - alias: Benutzerdefinierte Aktionen
+    sequence:
+      !input custom_action
