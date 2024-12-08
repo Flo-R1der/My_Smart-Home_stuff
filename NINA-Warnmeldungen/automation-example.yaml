@@ -39,15 +39,6 @@ conditions:
           is_state('input_boolean.nina_warnmeldung_extrem', 'on') }}
         alias: Severity = Extreme
     alias: Check Severity & Notification-Configuration
-  - alias: Check affected_areas
-    condition: template
-    value_template: |
-      {{ "Meckenbeuren" in trigger.to_state.attributes.affected_areas 
-      or "Schussen" in trigger.to_state.attributes.affected_areas 
-      or "Bodensee" in trigger.to_state.attributes.affected_areas 
-      or "weitere" in trigger.to_state.attributes.affected_areas
-      or "Württemberg" in trigger.to_state.attributes.affected_areas
-      or "eutschland" in trigger.to_state.attributes.affected_areas }}
 actions:
   - data:
       title: NINA Warnmeldung
