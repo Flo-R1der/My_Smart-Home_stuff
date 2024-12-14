@@ -1,0 +1,9 @@
+# excluding FILES
+*secrets*
+*auth*
+*credential*
+*token*
+*.log*
+*.pptx
+.github
+.vscode
