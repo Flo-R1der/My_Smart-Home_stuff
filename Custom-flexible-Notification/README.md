@@ -1,8 +1,11 @@
 # Custom flexible Notifications
 
 ## How does it work?
-This Script is a replacement for the `notify.notify` service, but with some considerable extra features, that are solving two main problems:
+This Script is there to manage **[Mobile Notifications](https://companion.home-assistant.io/docs/notifications/notifications-basic)** for the Home Assistant Companion App, but with some considerable extra features, compared to the onboard functionalities. 
 
+![overview diagram](overview.png)
+
+This script is solving two main problems:
 1. You are getting **Notifications in inconvenient situations**? 
    - Set up zones where you don't want unimportant notifications been delivered and reference them in the blueprint.
       - Examples: work, school, university, gym, ...
@@ -19,9 +22,9 @@ This Script is a replacement for the `notify.notify` service, but with some cons
 
 ### What about Critical Notifications?
 Of course there are some notifications, which should always been delivered. Therefore, additional checks are implemented to **always deliver [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)**, even when:
-- [x] The toggle-button is turned off
-- [x] The device in in an excluded zone
-- [ ] Critical can be sent to ALL DEVICES in Home Assistant (even those, who are not selected for this blueprint)
+- The toggle-button is turned off
+- The device in in an excluded zone
+- Critical can be sent to ALL DEVICES in Home Assistant (even those, who are not selected for this blueprint)
 
 Critical Notifications can be detected by a couple of identifies. For details about that, please take a look into blueprint options and the official Documentation of the [Companion App](https://companion.home-assistant.io/docs/notifications/notifications-basic). 
 
@@ -37,14 +40,14 @@ Critical Notifications can be detected by a couple of identifies. For details ab
       - which device should be notified
       - optional: a Helper Toggle-Switch, to disable the device temporary from the UI
       - a list of zones which should block sending notifications
-3. Update your existing automations to use the script-logic instead of selected devices or the notify.notify-service. Here are two examples:
-   - 📱 Device replacement example <br>
+3. Update your existing automations to use the script-logic instead of selected devices or the notify-services. Here are two examples:
+   - 📱 **Device** replacement example <br>
    ![image](from-device-notification_to-custom-flexible-notification.png)
-   - 🔔 `notify.notify` replacement example <br>
+   - 🔔 **`notify.notify`** or `notify.mobile_app_<device_id>` replacement example <br>
    ![image](from-notify-notify_to-custom-flexible-notification.png)
 
 
 
 ## Open Topics
 - The Script is well tested with Android Devices. If anyone is finding problems with iOS Devices, feel free to optimize the blueprint and add a Pull-Request.
-- As of today (2024-12-14) only the predefined options are implemented, to identify critical notifications. It is planned to do a regex-Logic for notification tags, messegas and title. The Input section is in the blueprint, but the evaluation-logic is missing. shouldn't be a big issue, but i'd rather release it first.
+- As of today (2025-01-19) only the predefined options are implemented, to identify critical notifications. It is planned to do a regex-Logic for notification tags, messages and title. The Input section is in the blueprint yaml, but the evaluation-logic is missing. This shouldn't be a big issue, but i'd rather release it first.
