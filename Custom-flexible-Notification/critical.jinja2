@@ -1,0 +1,180 @@
+{## Blueprint Variable Input ##}
+{% set send_clear_to_all = true %}
+{% set send_critical_to_all = true %}
+{% set critical_ident = [
+  'sound_critical_enabled',
+  'interruption_critical_enabled',
+  'priority_high_enabled',
+  'alarm_channel_enabled']
+%}
+
+{% set devices =
+  [ {
+      "input_device": "Device A",
+      "device_id": "{{ Device_A }}",
+      "switch": "{{ Switch_A }}",
+      "zones": "{{ Zones_A }}",
+      "bypass_options": ["ignore_switch", "ignore_zone"]
+    },
+    {
+      "input_device": "Device B",
+      "device_id": "{{ Device_B }}",
+      "switch": "{{ Switch_B }}",
+      "zones": "{{ Zones_B }}",
+      "bypass_options": ["ignore_switch", "ignore_zone"]
+    },
+    {
+      "input_device": "Device C",
+      "device_id": "{{ Device_C }}",
+      "switch": "{{ Switch_C }}",
+      "zones": "{{ Zones_C }}",
+      "bypass_options": ["ignore_switch", "ignore_zone"]
+    },
+    {
+      "input_device": "Device D",
+      "device_id": "{{ Device_D }}",
+      "switch": "{{ Switch_D }}",
+      "zones": "{{ Zones_D }}",
+      "bypass_options": ["ignore_switch", "ignore_zone"]
+    },
+    {
+      "input_device": "Device E",
+      "device_id": "{{ Device_E }}",
+      "switch": "{{ Switch_E }}",
+      "zones": "{{ Zones_E }}",
+      "bypass_options": ["ignore_switch", "ignore_zone"]
+    }
+  ]
+%}
+
+{% set number = namespace(devices=0) %}
+{% for device in devices %}
+  {% if device.device_id != "" %}
+    {% set number.devices = number.devices + 1 %}
+  {% else %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+number_devices: {{ number.devices }}
+
+{## Notification Variable Input ##}
+{% set message = 'clear_notification' %}
+{% set data = {
+  "push": {
+    "sound": {
+      "critical": 0
+      },
+    "interruption-level": "not_critical"
+    },
+  "ttl": 0,
+  "priority": "not_high",
+  "channel": "blarm_stream_max"
+  }
+%}
+
+
+{## Evaluate if notification is CRITICAL or 'clear_notification' ##}
+{% if data is defined %}
+  {% set critical_1 = data.get('push', {}).get('sound', {}).get('critical', 0) == 1 %}
+  {% set critical_2 = data.get('push', {}).get('interruption-level', '') == "critical" %}
+  {% set critical_3 = data.get('priority', '') == "high" %}
+  {% set critical_4 = "alarm_stream" in data.get('channel', "") %}
+{% endif %}
+{% set is_critical_notification = (
+  critical_1 and 'sound_critical_enabled' in critical_ident
+  or critical_2 and 'interruption_critical_enabled' in critical_ident
+  or critical_3 and 'priority_high_enabled' in critical_ident
+  or critical_4 and 'alarm_channel_enabled' in critical_ident)
+  |default(false) %}
+{{ is_critical_notification }}
+is_critical_notification: {{ is_critical_notification }}
+
+{% set is_clear_notification = message == 'clear_notification'%}
+is_clear_notification: {{ is_clear_notification }}
+
+
+{## "Send All" Shortcut ##}
+send critical notification: {{ is_critical_notification and send_critical_to_all }}
+send clear notification: {{ is_clear_notification and send_clear_to_all }}
+
+
+{## Repeat Block Input ##}
+{% set repeat = {
+  "item": {
+    "input_device": "Test-Device",
+    "device_id": "660bea1f004c4faffa8a01d80fb8555d",
+    "zones": [
+      "zone.work1",
+      "zone.work2",
+      "zone.school",
+      "zone.gym"
+      ],
+    "switch": ""
+    },
+  }
+%}
+
+
+{## Per Device VARIABLE Calculation ##}
+{% set input_device = repeat.item.input_device %}
+input_device: {{ input_device }}
+
+{% set device_tracker = device_entities(repeat.item.device_id) 
+  | select('contains', 'device_tracker.') | first | default('unknown') %}
+device_tracker: {{ device_tracker }}
+
+{% set device_zone_name = states(device_tracker)|default('unknown') %}
+device_zone_name: {{ device_zone_name }}
+
+{% set device_zone = namespace(name='', entity_id='unknown') %}
+{% set device_zone.name = states(device_tracker) %}
+{% for state in states.zone %}
+  {% if state.name is match(device_zone.name, ignorecase=True) %}
+    {% set device_zone.entity_id = state.entity_id %}
+  {% endif %}
+{% endfor %}
+{% set device_zone_id = device_zone.entity_id %}
+device_zone_id: {{ device_zone_id }}
+
+{% set excluded_zones = repeat.item.zones %}
+excluded_zones: {{ excluded_zones }}
+
+{% set notify_service = 'notify.mobile_app_' ~ device_attr(repeat.item.device_id, 'name') 
+  | replace(' ', '_') | replace('-', '_') %}
+notify_service: {{ notify_service }}
+
+{% if repeat.item.switch != '' %}
+  {% set switch = repeat.item.switch %}
+{% else %}
+  {% set switch = "NOT CONFIGURED - assume 'on' state" %}
+{% endif %}
+switch: {{ switch }}
+
+{% if repeat.item.switch != '' %}
+  {% set switch_state = states(switch) %}
+{% else %}
+  {% set switch_state = 'on' %}
+{% endif %}
+switch_state: {{ switch_state }}
+
+
+{## Per Device EVALUATION ##}
+{% set send_as_regular_notification = 
+  switch_state == 'on' and device_zone_id not in excluded_zones %}
+send_as_regular_notification: {{ send_as_regular_notification }}
+
+{% set send_as_critical_switch_bypass = 
+  is_critical_notification and 'ignore_switch' in bypass_options and
+  person_zone_id not in excluded_zones %}
+send_as_critical_switch_bypass: {{ send_as_critical_switch_bypass }}
+
+{% set send_as_critical_zone_bypass = 
+  is_critical_notification and 'ignore_zone' in bypass_options and
+  switch_state == 'on' %}
+send_as_critical_zone_bypass: {{ send_as_critical_zone_bypass }}
+
+{% set send_notification = 
+  send_as_regular_notification or 
+  send_as_critical_switch_bypass or 
+  send_as_critical_zone_bypass %}
+send_notification: {{ send_notification }}

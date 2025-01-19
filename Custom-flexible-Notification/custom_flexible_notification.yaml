@@ -1,0 +1,560 @@
+blueprint:
+  domain: script
+  homeassistant:
+    min_version: 2024.6.0
+  name: Custom Flexible Notification
+  description: >-
+    This Script is a replacement for the `notify.notify` service, but with some considerable extra features, that are solving two main problems:
+    
+    1. You are getting **Notifications in inconvenient situations**? 
+       - Set up zones where you don't want unimportant notifications been delivered and reference them in the blueprint.
+          - Examples: work, school, university, gym, ...
+       - Once the device leaves the excluded zone, notifications will be delivered as normal
+    2. **Going on vacation/business trip** and don't want to get notifications?
+       - Create a Helper Toggle-Switch*, reference it in the blueprint and turn it off in the Home Assistant User-Interface. This excludes the device from unimportant notifications going through this script.
+          - Examples: empty battery, vacuum robot is stuck, dishwasher or washing machine finished, ...
+       - Once the Toggle-Switch is turned on again, notifications will be delivered 
+    
+    \* I know, there is a way to set up this configuration within the blueprint, without the need of creating an `input_boolean`-Helper. But the automation setup is only accessible for Administrators and not for regular users. In order to make it more accessible I decided to use `input_boolean`-Helper.
+    
+    
+    **NOTE**: The skipped notifications will NOT be queued and delivered after the person leaves the zone or the Switch is turned on again. This means these notifications will simply be discarded for this device at this moment. Of course the device will be reconsidered in the next run of the script, if the switch is turned on again or th person is not in any excluded zone anymore.
+
+
+  input:
+    all_devices:
+      name: All Device Configuration
+      icon: mdi:message-cog-outline
+      collapsed: false
+      input:
+        send_clear_to_all:
+          name: Send 'clear_notification' always for ALL DEVICES in Home Assistant
+          description: >-
+            You can enable this Option, if you want '[clear_notification](https://companion.home-assistant.io/docs/notifications/notifications-basic#clearing)'
+            -messages always been delivered to ALL DEVICES in Home Assistant.
+            
+            
+            **NOTE**: The original notification and the clear_notification must have the same tag assigned to it.
+            This is how the mobile app knows, which message should be cleared.  
+            Specifically for Android devices, the original notification also requires the `persistent: true` property.
+          default: true
+          selector:
+            boolean:
+        send_critical_to_all:
+          name: Send critical notifications to ALL DEVICES in Home Assistant?
+          description: >-
+            You can enable this Option, if you want [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+            always been delivered to ALL DEVICES in Home Assistant.
+
+
+            **NOTE: This will ignore all device specific settings, switches and zones!**
+          default: true
+          selector:
+            boolean:
+        critical_ident:
+          name: Predefined options for critical notifications
+          description: >-
+            Here you can define how critical notifications are identified.
+            See [Home Assistant Companion Documentation](https://companion.home-assistant.io/docs/notifications/critical-notifications/) for more information.
+            
+            
+            **NOTE**: If you're not sure what to do, just use the default values.
+          default:
+          - sound_critical_enabled
+          - interruption_critical_enabled
+          - priority_high_enabled
+          - alarm_channel_enabled
+          selector:
+            select:
+              options:
+              - label: "'push.sound.critical: 1'"
+                value: sound_critical_enabled
+              - label: "'push.interruption-level: critical'"
+                value: interruption_critical_enabled
+              - label: "'priority: high' or 'importance: high'"
+                value: priority_high_enabled
+              - label: "'channel: alarm_stream' or 'channel: alarm_stream_max'"
+                value: alarm_channel_enabled
+              multiple: true
+        # alarm_tag:
+        #   name: Notification tags
+        #   description: >-
+        #     Use Regex to define notification tags to identify critical notifications. 
+        #     The logic implemented here is case insensitive, so you don't need to take care of that.
+        #     
+        #     
+        #     **NOTE**: If you're having a hard time using Regex, simply go to [regex101.com](https://regex101.com/)
+        #     and try the logic over there. It's simple and super responsive. 
+        #     I also use it when doing Regex. 
+        #   default: "⚡.*|🔥.*|🛑.*|❗.*|⚠.*|🚩.*|.*Alarm.*|.*Critical.*|.*Intruder.*|.*Smoke.*|.*Warning.*"
+        #   selector:
+        #     text:
+        # alarm_message:
+        #   name: Notification messages
+        #   description: >-
+        #     Use Regex to define notification messages to identify critical notifications. 
+        #     The logic implemented here is case insensitive, so you don't need to take care of that.
+        #   default: "⚡.*|🔥.*|🛑.*|❗.*|⚠.*|🚩.*|.*Alarm.*|.*Critical.*|.*Intruder.*|.*Smoke.*|.*Warning.*"
+        #   selector:
+        #     text:
+        # alarm_title:
+        #   name: Notification titles
+        #   description: >-
+        #     Use Regex to define notification titles to identify critical notifications. 
+        #     The logic implemented here is case insensitive, so you don't need to take care of that.
+        #   default: "⚡.*|🔥.*|🛑.*|❗.*|⚠.*|🚩.*|.*Alarm.*|.*Critical.*|.*Intruder.*|.*Smoke.*|.*Warning.*"
+        #   selector:
+        #     text:
+
+    Device_A_section:
+      name: Device A
+      icon: mdi:alpha-a-circle-outline
+      collapsed: true
+      input:
+        Device_A:
+          name: "Device A to notify"
+          default: none
+          selector:
+            device:
+              integration: mobile_app
+        Switch_A:
+          name: On/Off Switch for Device A
+          description: >-
+            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
+            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
+            (e.g. holidays, business trips, ...).  <br>
+            **If you need to create a helper, you can do that [here](/config/helpers).**
+            
+            
+            **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
+          default: ''
+          selector:
+            entity:
+              domain: input_boolean
+        Zones_A:
+          name: Excluded Zones for Device A
+          description: >-
+            Select the Zones, which should block sending notifications. If the device selected above 
+            is in a excluded zone, regular notifications will be skipped.
+            
+            
+            **If you need additional zones, you can set them up [here](/config/zone)**
+          default: []
+          selector:
+            entity:
+              domain: zone
+              multiple: true
+        bypass_options_A:
+          name: Deliver Critical notifications
+          description: >-
+            You can enable these Options, if you want [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+            to ignore the settings under the selected circumstances.
+          default:
+          - ignore_switch
+          - ignore_zone
+          selector:
+            select:
+              options:
+              - label: "Ignore the device Switch for critical notifications?"
+                value: ignore_switch
+              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+                value: ignore_zone
+              multiple: true
+
+    Device_B_section:
+      name: Device B
+      icon: mdi:alpha-b-circle-outline
+      collapsed: true
+      input:
+        Device_B:
+          name: "Device B to notify"
+          default: none
+          selector:
+            device:
+              integration: mobile_app
+        Switch_B:
+          name: On/Off Switch for Device B
+          description: >-
+            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
+            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
+            (e.g. holidays, business trips, ...).  <br>
+            **If you need to create a helper, you can do that [here](/config/helpers).**
+            
+            
+            **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
+          default: ''
+          selector:
+            entity:
+              domain: input_boolean
+        Zones_B:
+          name: Excluded Zones for Device B
+          description: >-
+            Select the Zones, which should block sending notifications. If the device selected above 
+            is in a excluded zone, regular notifications will be skipped.
+            
+            
+            **If you need additional zones, you can set them up [here](/config/zone)**
+          default: []
+          selector:
+            entity:
+              domain: zone
+              multiple: true
+        bypass_options_B:
+          name: Deliver Critical notifications
+          description: >-
+            You can enable these Options, if you want [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+            to ignore the settings under the selected circumstances.
+          default:
+          - ignore_switch
+          - ignore_zone
+          selector:
+            select:
+              options:
+              - label: "Ignore the device Switch for critical notifications?"
+                value: ignore_switch
+              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+                value: ignore_zone
+              multiple: true
+
+    Device_C_section:
+      name: Device C
+      icon: mdi:alpha-c-circle-outline
+      collapsed: true
+      input:
+        Device_C:
+          name: "Device C to notify"
+          default: none
+          selector:
+            device:
+              integration: mobile_app
+        Switch_C:
+          name: On/Off Switch for Device C
+          description: >-
+            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
+            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
+            (e.g. holidays, business trips, ...).  <br>
+            **If you need to create a helper, you can do that [here](/config/helpers).**
+            
+            
+            **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
+          default: ''
+          selector:
+            entity:
+              domain: input_boolean
+        Zones_C:
+          name: Excluded Zones for Device C
+          description: >-
+            Select the Zones, which should block sending notifications. If the device selected above 
+            is in a excluded zone, regular notifications will be skipped.
+            
+            
+            **If you need additional zones, you can set them up [here](/config/zone)**
+          default: []
+          selector:
+            entity:
+              domain: zone
+              multiple: true
+        bypass_options_C:
+          name: Deliver Critical notifications
+          description: >-
+            You can enable these Options, if you want [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+            to ignore the settings under the selected circumstances.
+          default:
+          - ignore_switch
+          - ignore_zone
+          selector:
+            select:
+              options:
+              - label: "Ignore the device Switch for critical notifications?"
+                value: ignore_switch
+              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+                value: ignore_zone
+              multiple: true
+
+    Device_D_section:
+      name: Device D
+      icon: mdi:alpha-d-circle-outline
+      collapsed: true
+      input:
+        Device_D:
+          name: "Device D to notify"
+          default: none
+          selector:
+            device:
+              integration: mobile_app
+        Switch_D:
+          name: On/Off Switch for Device D
+          description: >-
+            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
+            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
+            (e.g. holidays, business trips, ...).  <br>
+            **If you need to create a helper, you can do that [here](/config/helpers).**
+            
+            
+            **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
+          default: ''
+          selector:
+            entity:
+              domain: input_boolean
+        Zones_D:
+          name: Excluded Zones for Device D
+          description: >-
+            Select the Zones, which should block sending notifications. If the device selected above 
+            is in a excluded zone, regular notifications will be skipped.
+            
+            
+            **If you need additional zones, you can set them up [here](/config/zone)**
+          default: []
+          selector:
+            entity:
+              domain: zone
+              multiple: true
+        bypass_options_D:
+          name: Deliver Critical notifications
+          description: >-
+            You can enable these Options, if you want [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+            to ignore the settings under the selected circumstances.
+          default:
+          - ignore_switch
+          - ignore_zone
+          selector:
+            select:
+              options:
+              - label: "Ignore the device Switch for critical notifications?"
+                value: ignore_switch
+              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+                value: ignore_zone
+              multiple: true
+
+    Device_E_section:
+      name: Device E
+      icon: mdi:alpha-e-circle-outline
+      collapsed: true
+      input:
+        Device_E:
+          name: "Device E to notify"
+          default: none
+          selector:
+            device:
+              integration: mobile_app
+        Switch_E:
+          name: On/Off Switch for Device E
+          description: >-
+            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
+            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
+            (e.g. holidays, business trips, ...).  <br>
+            **If you need to create a helper, you can do that [here](/config/helpers).**
+            
+            
+            **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
+          default: ''
+          selector:
+            entity:
+              domain: input_boolean
+        Zones_E:
+          name: Excluded Zones for Device E
+          description: >-
+            Select the Zones, which should block sending notifications. If the device selected above 
+            is in a excluded zone, regular notifications will be skipped.
+            
+            
+            **If you need additional zones, you can set them up [here](/config/zone)**
+          default: []
+          selector:
+            entity:
+              domain: zone
+              multiple: true
+        bypass_options_E:
+          name: Deliver Critical notifications
+          description: >-
+            You can enable these Options, if you want [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+            to ignore the settings under the selected circumstances.
+          default:
+          - ignore_switch
+          - ignore_zone
+          selector:
+            select:
+              options:
+              - label: "Ignore the device Switch for critical notifications?"
+                value: ignore_switch
+              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+                value: ignore_zone
+              multiple: true
+
+
+variables:
+  send_clear_to_all: !input send_clear_to_all
+  send_critical_to_all: !input send_critical_to_all
+  critical_ident: !input critical_ident
+  # alarm_tag: !input alarm_tag
+  # alarm_message: !input alarm_message
+  # alarm_title: !input alarm_title
+
+  Device_A: !input Device_A
+  Switch_A: !input Switch_A
+  Zones_A: !input Zones_A
+  bypass_options_A: !input bypass_options_A
+  Device_B: !input Device_B
+  Switch_B: !input Switch_B
+  Zones_B: !input Zones_B
+  bypass_options_B: !input bypass_options_B
+  Device_C: !input Device_C
+  Switch_C: !input Switch_C
+  Zones_C: !input Zones_C
+  bypass_options_C: !input bypass_options_C
+  Device_D: !input Device_D
+  Switch_D: !input Switch_D
+  Zones_D: !input Zones_D
+  bypass_options_D: !input bypass_options_D
+  Device_E: !input Device_E
+  Switch_E: !input Switch_E
+  Zones_E: !input Zones_E
+  bypass_options_E: !input bypass_options_E
+
+
+sequence:
+  - variables:
+      devices: |-
+        [ {
+            "input_device": "Device A",
+            "device_id": "{{ Device_A }}",
+            "switch": "{{ Switch_A }}",
+            "zones": "{{ Zones_A }}",
+            "bypass_options": "{{ bypass_options_A }}"
+          },
+          {
+            "input_device": "Device B",
+            "device_id": "{{ Device_B }}",
+            "switch": "{{ Switch_B }}",
+            "zones": "{{ Zones_B }}",
+            "bypass_options": "{{ bypass_options_B }}"
+          },
+          {
+            "input_device": "Device C",
+            "device_id": "{{ Device_C }}",
+            "switch": "{{ Switch_C }}",
+            "zones": "{{ Zones_C }}",
+            "bypass_options": "{{ bypass_options_C }}"
+          },
+          {
+            "input_device": "Device D",
+            "device_id": "{{ Device_D }}",
+            "switch": "{{ Switch_D }}",
+            "zones": "{{ Zones_D }}",
+            "bypass_options": "{{ bypass_options_D }}"
+          },
+          {
+            "input_device": "Device E",
+            "device_id": "{{ Device_E }}",
+            "switch": "{{ Switch_E }}",
+            "zones": "{{ Zones_E }}",
+            "bypass_options": "{{ bypass_options_E }}"
+          }
+        ]
+  - alias: Evaluate if notification is CRITICAL or 'clear_notification'
+    variables:
+      is_critical_notification: |-
+        {% if data is defined %}
+          {% set critical_1 = data.get('push', {}).get('sound', {}).get('critical', 0) == 1 %}
+          {% set critical_2 = data.get('push', {}).get('interruption-level', "") == "critical" %}
+          {% set critical_3 = data.get('priority', '') == "high" %}
+          {% set critical_4 = "alarm_stream" in data.get('channel', "") %}
+        {% endif %}
+        {% set is_critical_notification = (
+          critical_1 and 'sound_critical_enabled' in critical_ident
+          or critical_2 and 'interruption_critical_enabled' in critical_ident
+          or critical_3 and 'priority_high_enabled' in critical_ident
+          or critical_4 and 'alarm_channel_enabled' in critical_ident)
+          |default(false) %}
+        {{ is_critical_notification }}
+      is_clear_notification: |-
+        {{ message == 'clear_notification' }}
+  - alias: Send Notification to ALL DEVICES in Home Assistant and STOP?
+    if: |-
+      {{ is_critical_notification and send_critical_to_all 
+      or is_clear_notification and send_clear_to_all }}
+    then:
+      - action: notify.notify
+        data:
+          message: "{{ message }}"
+          title: "{{ title|default(' ') }}"
+          data: >-
+            {% if data is defined %} {{ data }} {% else %} {"channel": "General"} {% endif %}
+      - stop: >-
+          Notifications sent to ALL DEVICES in Home Assistant.
+
+  - alias: Evaluate for each device, if notifications should be sent or not.
+    repeat:
+      for_each: "{{ devices }}"
+      sequence:
+        - alias: Only execute Steps, when Device is configured
+          if:
+            - condition: template
+              value_template: "{{ repeat.item.device_id != 'none' }}"
+          then:
+            - variables:
+                input_device: >-
+                  {{ repeat.item.input_device }}
+                device_tracker: >-
+                  {{ device_entities(repeat.item.device_id) | select('contains', 'device_tracker.') 
+                  | first | default('unknown') }}
+                device_zone_name: >-
+                  {{ states(device_tracker)|default('unknown') }}
+                device_zone_id: >-
+                  {% set device_zone = namespace(name='', entity_id='unknown') %}
+                  {% set device_zone.name = states(device_tracker) %}
+                  {% for state in states.zone %}
+                    {% if state.name is match(device_zone.name, ignorecase=True) %}
+                      {% set device_zone.entity_id = state.entity_id %}
+                    {% endif %}
+                  {% endfor %}
+                  {% set device_zone_id = device_zone.entity_id %}
+                  {{ device_zone_id }}
+                excluded_zones: >-
+                  {{ repeat.item.zones }}
+                notify_service: >-
+                  {% set notify_service = 'notify.mobile_app_' ~ device_attr(repeat.item.device_id, 'name') 
+                    | replace(' ', '_') | replace('-', '_') %}
+                  {{ notify_service }}
+                switch: >-
+                  {% if repeat.item.switch != '' %}
+                    {% set switch = repeat.item.switch %}
+                  {% else %}
+                    {% set switch = "NOT CONFIGURED - assume 'on' state" %}
+                  {% endif %}
+                  {{ switch }}
+                switch_state: >-
+                  {% if repeat.item.switch != '' %}
+                    {% set switch_state = states(switch) %}
+                  {% else %}
+                    {% set switch_state = 'on' %}
+                  {% endif %}
+                  {{ switch_state }}
+                bypass_options: "{{ repeat.item.bypass_options }}"
+            - alias: EVALUATION
+              variables:
+                send_as_regular_notification: >-
+                  {{ switch_state == 'on' and device_zone_id not in excluded_zones }}
+                send_as_critical_switch_bypass: >-
+                  {{ is_critical_notification and 'ignore_switch' in bypass_options and
+                    person_zone_id not in excluded_zones }}
+                send_as_critical_zone_bypass: >-
+                  {{ is_critical_notification and 'ignore_zone' in bypass_options and
+                    switch_state == 'on' }}
+                send_notification: >-
+                  {{ send_as_regular_notification or 
+                    send_as_critical_switch_bypass or 
+                    send_as_critical_zone_bypass }}
+            - alias: "If allowed: Send Notifications to devices"
+              if: "{{ send_notification }}"
+              then:
+                - action: "{{ notify_service }}"
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(' ') }}"
+                    data: |-
+                      {% if data is defined %} {{ data }}
+                      {% else %} {"channel": "General"} {% endif %}
+
+
+mode: queued
