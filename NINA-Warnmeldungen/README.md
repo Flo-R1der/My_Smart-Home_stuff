@@ -1,4 +1,5 @@
 # NINA Warnmeldungen
+> [!NOTE]  
 > Since [NINA](https://www.home-assistant.io/integrations/nina/) Warnmeldungen is a integration, particularly for Germans provided by the [Bundesamt für Bevölkerungsschutz und Katastrophenhilfe (BBK)](https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/Warnung-im-Web/warnung-im-web_node.html), this documentation is written in german. It does not make any sense to me, to keep it international whereas the integration is not. If you want to learn more about NINA, feel free to reach out [Wikipedia](https://de.wikipedia.org/wiki/Warn-App_NINA).
 
 <br>

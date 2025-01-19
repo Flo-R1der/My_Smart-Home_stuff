@@ -5,13 +5,12 @@ blueprint:
     Hierbei kann die Benachrichtigung in Abhängigkeit der Warnstufe Ein-/Ausgeschaltet werden. 
     Bitte nutzt auch den **[Uptime](https://www.home-assistant.io/integrations/uptime/)**-Sensor,
     um Mehrfach-Meldungen nach dem Home Assistant Neustart zu verhindern.
-    Falls Ihr diesen noch nicht eingerichtet habt, könnt ihr das 
+    Falls Ihr diesen noch nicht eingerichtet habe, könnt ihr das 
     [mit diesem Link](https://my.home-assistant.io/redirect/config_flow_start?domain=uptime) erledigen.
   domain: automation
   author: Flo-R1der (https://github.com/Flo-R1der)
   homeassistant:
     min_version: 2024.6.0
-  #source_url: #FIXME
   input:
     input_section:
       name: Warn-Sensoren und Warnstufe einstellen
@@ -28,16 +27,19 @@ blueprint:
         moderate_switch:
           name: Moderat
           description: 'Aktionen bei Warnstufe "Moderate" ausführen?'
+          default: false
           selector:
             boolean:
         severe_switch:
           name: Hoch
           description: 'Aktionen bei Warnstufe "Severe" ausführen?'
+          default: true
           selector:
             boolean:
         extreme_switch:
           name: Extrem
           description: 'Aktionen bei Warnstufe "Extreme" ausführen?'
+          default: true
           selector:
             boolean:
         other_conditions:
@@ -45,6 +47,7 @@ blueprint:
           description: >-
             Hier können weitere Bedingungen angegeben werden, bevor die Aktionen ausgeführt
             werden. So kann z.B. die Zeit auf 06:00 - 22:00 begrenzt werden.
+          default: []
           selector:
             condition:
     action_section:
@@ -57,6 +60,7 @@ blueprint:
             Ist diese Option aktiviert, werden Push-Benachrichtigungen an alle 
             in Home Assistant registrierte Geräte versendet. Möchtest du lieber deine 
             eigene Logik implementieren, deaktivieren diese Option.
+          default: true
           selector:
             boolean:
         custom_action:
@@ -65,6 +69,7 @@ blueprint:
             Wer es einfach nur Benachrichtigungen haben möchte, aktiviert die Option oben.
             Wer jedoch eigene Aktionen nutzen möchte, kann diese hier hinzufügen.
             Diese werden nach dem `notify.notify` von oben ausgeführt, sofern aktiviert.
+          default: []
           selector:
             action:
 
@@ -84,26 +89,30 @@ variables:
   use_notifynotify: !input use_notifynotify
 
 condition:
-- condition: template
-  alias: Breche ab, wenn "Uptime <= 3 minutes"
-  value_template: >-
-    {% set uptime_seconds = now()|as_timestamp - states('sensor.uptime')|as_timestamp %} 
-    {{ uptime_seconds > 180 }}
-- condition: or
-  alias: Prüfe die Severity & zugehörige Schalter
-  conditions:
   - condition: template
+    alias: Breche ab, wenn "Uptime <= 3 minutes"
     value_template: >-
-      {{ trigger_severity == "Moderate" and moderate_switch == true }}
-    alias: Severity = Moderate
-  - condition: template
-    value_template: >-
-      {{ trigger_severity == "Severe" and severe_switch == true }}
-    alias: Severity = Severe
-  - condition: template
-    value_template: >-
-      {{ trigger_severity == "Extreme" and extreme_switch == true }}
-    alias: Severity = Extreme
+      {% set uptime_seconds = now()|as_timestamp - states('sensor.uptime')|as_timestamp %} 
+      {{ uptime_seconds > 180 }}
+  - condition: or
+    alias: Prüfe die Severity & zugehörige Schalter
+    conditions:
+    - condition: template
+      value_template: >-
+        {{ trigger_severity == "Moderate" and moderate_switch == true }}
+      alias: Severity = Moderate
+    - condition: template
+      value_template: >-
+        {{ trigger_severity == "Severe" and severe_switch == true }}
+      alias: Severity = Severe
+    - condition: template
+      value_template: >-
+        {{ trigger_severity == "Extreme" and extreme_switch == true }}
+      alias: Severity = Extreme
+  - condition: and
+    alias: Benutzerdefinierte Bedingungen
+    conditions:
+      !input other_conditions
 
 actions:
   - if:
