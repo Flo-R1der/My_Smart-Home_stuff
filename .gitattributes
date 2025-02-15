@@ -1,3 +1,10 @@
+# CAD files
 *.stp filter=lfs diff=lfs merge=lfs -text
 *.stl filter=lfs diff=lfs merge=lfs -text
+
+# Archives
 *.zip filter=lfs diff=lfs merge=lfs -text
+
+# Office-Documents
+*.xlsx filter=lfs diff=lfs merge=lfs -text
+*.pptx filter=lfs diff=lfs merge=lfs -text
