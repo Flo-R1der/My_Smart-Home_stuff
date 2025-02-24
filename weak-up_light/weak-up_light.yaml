@@ -1,7 +1,7 @@
 blueprint:
   name: Weak-up Light with sunrise effect
   description: >-
-    Can control any dimmable ligth between two brightness values choosen in the blueprint
+    Can control any dimmable light between two brightness values chosen in the blueprint
   domain: automation
   author: Flo-R1der (https://github.com/Flo-R1der)
   homeassistant:
@@ -15,14 +15,14 @@ blueprint:
         schedule_entity:
           name: Schedule Entity
           description: >-
-            **Recommended!** use a schedule [helper](/config/helpers) to START **and** STOP the light. <br>
+            **Recommended!** use a schedule [helper](/config/helpers) to **START and STOP** the light. <br>
             Can be empty if you like to use another trigger.
           default: null
           selector:
             entity:
               domain: schedule
         alarm_sensor:
-          name: Alarm timestamp sensor
+          name: "Alarm sensor (type: timestamp)"
           description: >-
             Sensor with timestamp of next alarm (e.g. mobile device with companion-app)
             with device_class: `timestamp`. <br>
@@ -32,32 +32,33 @@ blueprint:
             entity:
               device_class: timestamp
               multiple: false
-        custom_time:
-          name: Custom alarm time
+        custom_start_time:
+          name: Custom Start time
           description: >-
-            Time to trigger the alarm every day, if the other sensor are not set. <br>
+            Time to trigger the start every day, if the other sensor are not set. <br>
             **WARNING**: Settings at or shortly after midnight will not work as expected!
           default: null
           selector:
-            time: 
-        custom_start:
-          name: Custom Start time
+            time:
+        custom_end_time:
+          name: Custom End time
+          description: >-
+            Time to turn off the light
+          default: null
+          selector:
+            time:
+        custom_trigger:
+          name: Custom Trigger
           description: >-
             If the settings from above does not meet your requirement, 
-            you can also set a custom START trigger.
+            you can also set a custom trigger. If you want your trigger to be considered
+            for turning off the light, simply set the ID to `END`.
           default: []
           selector:
             trigger:
-        # custom_stop:
-        #   name: Custom Stop time
-        #   description: >-
-        #     You can also set a custom STOP trigger.
-        #   default: []
-        #   selector:
-        #     trigger:
 
     condition_section:
-      name: CONDITIONS to procceed
+      name: CONDITIONS to proceed
       icon: mdi:help-circle-outline
       input:
         check_workday_sensor:
@@ -74,7 +75,7 @@ blueprint:
           name: Check if anyone is at home?
           description: >-
             Check if anyone is in the `zone.home` and skip the wake-up light if not. <br>
-            This can be helpfull if you let your mobile devices check-in and check-out
+            This can be helpful if you let your mobile devices check-in and check-out
             in your home-zone. <br> **REQUIREMENT**: Mobile devices with companion-app.
           default: true
           selector:
@@ -97,7 +98,7 @@ blueprint:
         custom_conditions:
           name: Custom conditions to check.
           description: >-
-            Here you can add for custom conditions to check, before the automation should procceed. <br>
+            Here you can add for custom conditions to check, before the automation should proceed. <br>
             EXAMPLE: A template condition checking your calendar for Vacation/Holiday events: <br>
             ````
             {{ not ( states('calendar.work') == 'on' and 
@@ -106,19 +107,39 @@ blueprint:
           default: []
           selector:
             condition:
-        # conditions_stop:
-        #   name: Check the Conditions also for a STOP Event?
-        #   description: >- 
-        #     If you use a STOP event (e.g. schedule, custom stop, etc.) to turn off the light,
-        #     the conditions are not considered by default. Tunr on if necessary.
-        #   default: false
-        #   selector:
-        #     boolean:
+        end_conditions_enabled:
+          name: Check the Conditions also for a END Event?
+          description: >- 
+            If you use a END event (e.g. schedule, custom stop, etc.) to turn off the light,
+            the conditions are not considered by default. Turn on if necessary.
+          default: false
+          selector:
+            boolean:
 
     action_section:
-      name: START ACTIONS and their behaviour
+      name: START ACTIONS and their behavior
       icon: mdi:play-circle-outline
       input:
+        # start_calc_method:
+        #   name: How should the start time be calculated
+        #   description: >-
+        #     - **Sunrise Start**, when the defined Schedule/ Alarm/ Timer is reached.
+            
+        #     - **Sunrise End**, when the defined Schedule/ Alarm/ Timer is reached.
+        #     The sunrise take place, before the Schedule/ Alarm/ Timer is reached.
+            
+        #     - **Sunrise Middle**, when the sunrise should take place half before the 
+        #     Schedule/Alarm/Timer is reached and half afterwards.
+            
+            
+        #     Does not work with custom trigger!
+        #   selector:
+        #     select:
+        #       options:
+        #         - Sunrise Start
+        #         - Sunrise End
+        #         - Sunrise Middle
+        #   default: Sunrise Start
         pre_sunrise_actions:
           name: PRE-sunrise actions
           description: >-
@@ -128,13 +149,13 @@ blueprint:
           default: []
           selector:
             action:
-        light_device:
-          name: Devices to be controlled
+        light_entities:
+          name: Lights to be controlled
           selector:
-            device:
-              multiple: true
-              entity:
+            entity:
+              filter:
                 domain: light
+              multiple: true
         brightness_start:
           name: START brightness %
           description: >-
@@ -164,7 +185,7 @@ blueprint:
         brightness_steps:
           name: Brightness STEPS %
           description: >-
-            Defines in which % steps the brightness shoul be increased <br>
+            Defines in which % steps the brightness should be increased <br>
           default: 5
           selector:
             number:
@@ -205,16 +226,18 @@ variables:
   #schedule_entity_enabled: "{{ schedule_entity != null }}"
   alarm_sensor: !input alarm_sensor
   #alarm_sensor_enabled: "{{ alarm_sensor != null }}"
-  custom_time: !input custom_time
-  custom_time_enabled: "{{ custom_time != null }}"
+  custom_start_time: !input custom_start_time
+  custom_start_time_enabled: "{{ custom_start_time != null }}"
   # custom triggers is referenced directly (below)
+  end_conditions_enabled: !input end_conditions_enabled
   check_workday_sensor: !input check_workday_sensor
   check_anyone_home: !input check_anyone_home
   person_to_check: !input person_to_check
   check_person_zone: !input check_person_zone
   # custom conditions is referenced directly (below)
+  #start_calc_method: !input start_calc_method
   # PRE-actions is referenced directly (below)
-  light_device: !input light_device
+  light_entities: !input light_entities
   brightness_start: !input brightness_start
   brightness_end: !input brightness_end
   brightness_steps: !input brightness_steps
@@ -236,27 +259,43 @@ triggers:
     alias: Alarm START
   - trigger: time
     alias: Custom time START
-    at: !input custom_time
-  - triggers: !input custom_start
-  # - trigger: state
-  #   alias: Scheduled STOP
-  #   entity_id: !input schedule_entity
-  #   to: 'off'
-  #   id: STOP
+    at: !input custom_start_time
+  - trigger: state
+    entity_id: !input schedule_entity
+    to: "off"
+    id: END
+    alias: Scheduled END
+  - trigger: time
+    alias: Custom time END
+    at: !input custom_end_time
+    id: END
+  - triggers: !input custom_trigger
 
 conditions:
-  - condition: state
-    entity_id: binary_sensor.workday_sensor
-    state: "on"
+  - condition: or
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.workday_sensor
+        state: "on"
+      - condition: template
+        value_template: "{{ trigger.id == 'END' and not end_conditions_enabled }}"
     enabled: !input check_workday_sensor
     alias: WORKDAY?
-  - condition: numeric_state
-    entity_id: zone.home
-    above: 0
+  - condition: or
+    conditions:
+      - condition: numeric_state
+        entity_id: zone.home
+        above: 0
+      - condition: template
+        value_template: "{{ trigger.id == 'END' and not end_conditions_enabled }}"
     enabled: !input check_anyone_home
     alias: Anyone at HOME?
-  - condition: template
-    value_template: "{{ states(person_to_check) == 'home' }}"
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: "{{ states(person_to_check) == 'home' }}"
+      - condition: template
+        value_template: "{{ trigger.id == 'END' and not end_conditions_enabled }}"
     alias: Check PERSON Zone
     enabled: !input check_person_zone
   - condition: and
@@ -265,43 +304,54 @@ conditions:
       !input custom_conditions
 
 actions:
-  - alias: PRE Actions
-    sequence:
-      !input pre_sunrise_actions
-  - alias: Control Light in Parabolic Shape
-    repeat:
-      while:
-        - condition: template
-          value_template: "{{ now()|as_local < endtime|as_datetime|as_local }}"
-      sequence:
-        - variables:
-            actual_runtime_seconds: "{{ now()|as_timestamp - start_timestamp }}"
-            brightness_value: >-
-              {{ ( (brightness_end-brightness_start) / (duration_seconds ** 2) ) 
-              * actual_runtime_seconds**2 + brightness_start }}
-            seconds_this_step: >-
-              {{ sqrt( ( (brightness_value-brightness_start+brightness_steps) 
-              * duration_seconds**2 ) / (brightness_end-brightness_start) ) }}
-        - action: light.turn_on
-          data:
-            brightness_pct: "{{ min(brightness_value|round(0), brightness_end) }}"
-          target:
-            device_id: !input light_device
-        - delay:
-            hours: 0
-            minutes: 0
-            seconds: "{{ max((seconds_this_step - actual_runtime_seconds)|round, 3) }}"
-        - if:
+  - if:
+      - condition: trigger
+        id:
+          - END
+    then:
+      - if:
+          - condition: state
+            entity_id: !input light_entities
+            state: "on"
+        then:
+          - action: light.turn_off
+            target:
+              entity_id: !input light_entities
+    else:
+      - alias: PRE Actions
+        sequence:
+          !input pre_sunrise_actions
+      - alias: Control Light in Parabolic Shape
+        repeat:
+          while:
             - condition: template
-              value_template: >-
-                {% set light_entity = device_entities(light_device[0]) |
-                select('contains', 'light.') | first | default('unknown') %} 
-                {{ is_state(light_entity, 'off') }}
-          then:
-            - stop: Light has been turned off
-  - alias: POST Actions
-    sequence:
-      !input post_sunrise_actions
+              value_template: "{{ now()|as_local < endtime|as_datetime|as_local }}"
+          sequence:
+            - variables:
+                actual_runtime_seconds: "{{ now()|as_timestamp - start_timestamp }}"
+                brightness_value: >-
+                  {{ ( (brightness_end-brightness_start) / (duration_seconds ** 2) ) 
+                  * actual_runtime_seconds**2 + brightness_start }}
+                seconds_this_step: >-
+                  {{ sqrt( ( (brightness_value-brightness_start+brightness_steps) 
+                  * duration_seconds**2 ) / (brightness_end-brightness_start) ) }}
+            - action: light.turn_on
+              data:
+                brightness_pct: "{{ min(brightness_value|round(0), brightness_end) }}"
+              target:
+                entity_id: !input light_entities
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: "{{ max((seconds_this_step - actual_runtime_seconds)|round, 3) }}"
+            - if:
+                - condition: template
+                  value_template: "{{ is_state(light_entities|first, 'off') }}"
+              then:
+                - stop: Light has been turned off
+      - alias: POST Actions
+        sequence:
+          !input post_sunrise_actions
 
 mode: parallel
 max: 10
