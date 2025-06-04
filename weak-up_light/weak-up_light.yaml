@@ -243,7 +243,7 @@ variables:
   light_entities: !input light_entities
   brightness_start: !input brightness_start
   brightness_end: !input brightness_end
-  brightness_delta: "{{ max(brightness_end-brightness_start, 1) }}"
+  brightness_delta: "{{ brightness_end-brightness_start }}"
   brightness_steps: !input brightness_steps
   # POST-actions is referenced directly (below)
 
@@ -328,8 +328,8 @@ actions:
             {% elif start_calc_method == "Start" %} {{duration_seconds}} {% endif %}
     alias: "Start Calc Method: Start/Middle/End?"
   - if:
-      - condition: trigger
-        id: END
+      - condition: template
+        value_template: "{{ 'END' in trigger.id }}"
     then:
       - if:
           - condition: state
@@ -357,11 +357,15 @@ actions:
             - variables:
                 actual_runtime_seconds: "{{ now()|as_timestamp - timestamp_start }}"
                 brightness_value: >-
-                  {{ ( brightness_delta / duration_seconds ** 2 ) 
-                  * actual_runtime_seconds**2 + brightness_start }}
+                  {% if brightness_delta > 0 %}
+                    {{ ( brightness_delta / duration_seconds ** 2 ) 
+                    * actual_runtime_seconds**2 + brightness_start }}
+                  {% else %} {{ brightness_start }} {% endif %}
                 seconds_this_step: >-
-                  {{ sqrt( ( (brightness_value-brightness_start+brightness_steps) 
-                  * duration_seconds**2 ) / brightness_delta ) }}
+                  {% if brightness_delta > 0 %}
+                    {{ sqrt( ( (brightness_value-brightness_start+brightness_steps) 
+                    * duration_seconds**2 ) / brightness_delta ) }}
+                  {% else %} {{ timestamp_end-timestamp_start }} {% endif %}
             - action: light.turn_on
               data:
                 brightness_pct: "{{ min(brightness_value|round(0), brightness_end) }}"
@@ -370,7 +374,7 @@ actions:
             - delay:
                 hours: 0
                 minutes: 0
-                seconds: "{{ max((seconds_this_step - actual_runtime_seconds)|round, 3) }}"
+                seconds: "{{ max((seconds_this_step-actual_runtime_seconds)|round, 3) }}"
             - if:
                 - condition: template
                   value_template: "{{ is_state(light_entities|first, 'off') }}"
@@ -380,5 +384,4 @@ actions:
         sequence:
           !input post_sunrise_actions
 
-mode: parallel
-max: 10
+mode: single
