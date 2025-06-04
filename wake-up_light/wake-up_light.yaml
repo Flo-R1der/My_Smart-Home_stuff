@@ -30,14 +30,14 @@ blueprint:
         schedule_entity:
           name: Schedule Entity
           description: >-
-            **Recommended!** Use a schedule [helper](/config/helpers) to **START and STOP** the light. <br>
+            Use a schedule [helper](/config/helpers) to **START and STOP** the light. <br>
             Can be empty if you like to use another trigger.
           default: []
           selector:
             entity:
               domain: schedule
         custom_start_time:
-          name: Custom Start time
+          name: Custom START time
           description: >-
             Time to trigger the start every day, if the other sensor are not set. <br>
             **WARNING**: Settings at or shortly after midnight will not work as expected!
@@ -45,7 +45,7 @@ blueprint:
           selector:
             time:
         custom_end_time:
-          name: Custom End time
+          name: Custom END time
           description: >-
             Time to turn off the light
           default: null
@@ -195,12 +195,12 @@ blueprint:
               unit_of_measurement: min
               mode: slider
         start_calc_method:
-          name: How should the START time be calculated
+          name: When should the sunrise effect START compared to the trigger?
           description: >-
-            \- Choose **Start** if the sunrise effect should start when the defined Schedule/Alarm/Timer is reached.
-
-            \- Choose **End** if the sunrise effect should start prematurely and end when the
+            \- Choose **Before** if the sunrise effect should start prematurely and end when the
             Schedule/Alarm/Timer is reached.
+            
+            \- Choose **After** if the sunrise effect should start when the defined Schedule/Alarm/Timer is reached.
 
             \- Choose **Middle** if the sunrise should take place half before the 
             Schedule/Alarm/Timer is reached and half afterwards.
@@ -209,10 +209,10 @@ blueprint:
           selector:
             select:
               options:
-                - Start
-                - End
+                - Before
+                - After
                 - Middle
-          default: Start
+          default: After
         post_sunrise_actions:
           name: POST-sunrise actions
           description: >-
@@ -329,8 +329,9 @@ actions:
       - delay:
           seconds: >-
             {% if start_calc_method == "Middle" %} {{duration_seconds/2}}
-            {% elif start_calc_method == "Start" %} {{duration_seconds}} {% endif %}
-    alias: "Start Calc Method: Start/Middle/End?"
+            {% elif start_calc_method == "After" %} {{duration_seconds}}
+            {% else %} 0 {% endif %}
+    alias: "Start Calc Method: Before/Middle/After?"
   - if:
       - condition: template
         value_template: "{{ 'END' in trigger.id }}"
