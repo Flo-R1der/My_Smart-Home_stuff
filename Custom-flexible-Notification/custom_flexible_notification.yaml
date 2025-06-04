@@ -19,7 +19,10 @@ blueprint:
     
     
     **NOTE**: The skipped notifications will NOT be queued and delivered after the person leaves the zone or the Switch is turned on again. This means these notifications will simply be discarded for this device at this moment. Of course the device will be reconsidered in the next run of the script, if the switch is turned on again or th person is not in any excluded zone anymore.
-
+    
+    
+    **Like My Work?** <br>
+    [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
 
   input:
     all_devices:

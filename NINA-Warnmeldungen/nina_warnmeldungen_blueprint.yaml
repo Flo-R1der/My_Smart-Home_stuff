@@ -4,9 +4,12 @@ blueprint:
     Sendet Push-Benachrichtigungen beim Auftreten einer Warnmeldung.
     Hierbei kann die Benachrichtigung in Abhängigkeit der Warnstufe Ein-/Ausgeschaltet werden. 
     Bitte nutzt auch den **[Uptime](https://www.home-assistant.io/integrations/uptime/)**-Sensor,
-    um Mehrfach-Meldungen nach dem Home Assistant Neustart zu verhindern.
+    um Mehrfach-Meldungen nach dem Home Assistant Neustart zu verhindern. <br> 
     Falls Ihr diesen noch nicht eingerichtet habe, könnt ihr das 
     [mit diesem Link](https://my.home-assistant.io/redirect/config_flow_start?domain=uptime) erledigen.
+    
+    
+    [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
   domain: automation
   author: Flo-R1der (https://github.com/Flo-R1der)
   homeassistant:

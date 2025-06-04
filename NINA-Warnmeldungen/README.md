@@ -34,7 +34,7 @@ Zu aller erst muss die Voraussetzung von oben erfüllt sein und der Blueprint im
 <a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=FIXME" target="_blank"><img src="https://my.home-assistant.io/badges/blueprint_import.svg"></a> <br>
 
 Anschließend kann eine neue Automation unter Verwendung des Blueprints erstellt werden. Die Einstellmöglichkeiten sind:
-1. **ALLE Warnsensoren** hinzufügen, die Warnmeldungen aus Handy senden sollen  
+1. **ALLE Warnsensoren** hinzufügen, die Warnmeldungen aufs Handy senden sollen  
 2. Für die Warnstufen **Moderat**, **Hoch** und **Extrem** kann jeweils entschieden werden, ob Warnungen versendet werden sollen  
 3. Bei Bedarf können weitere Bedingungen hinzugefügt werden. Sind diese nicht erfüllt, werden die Aktionen unten nicht ausgeführt. 
 4. Standardmäßig versendet der Blueprint eine Benachrichtigung an alle mit der Home Assistant Instanz verbundenen Mobilgeräte, via dem Dienst `notify.notify`. Wer das nicht möchte, deaktiviert den entsprechenden Schalter.
@@ -77,3 +77,10 @@ Wem das zu hoch ist und lieber eine einfache Erklärung möchte: Die Warnmeldung
 > **Tipp:** Nutzt die [Affected Area Filter](https://www.home-assistant.io/integrations/nina/#affected-area-filter) der Integration, um Falschmeldungen zu reduzieren. Hat in dem Fall oben zwar auch nicht geholfen, das ist aber so selten geworden, dass es verschmerzbar ist. Und wer sich mir Regex schwer tut, nutzt einfach die Website [regex101](https://regex101.com/) oder mein Beispiel und passt es sich an:  
 `.*Meckenbeuren.*|.*Schussen.*|.*Bodensee.*|.*weitere.*|.*Württemberg.*|.*eutschland.*` (Das `D` fehlt mit Absicht, weil sonst "Süddeutschland" kein Match wäre)
 </details>
+
+<br>
+
+---
+
+## Like My Work?
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)

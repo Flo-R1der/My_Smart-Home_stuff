@@ -28,3 +28,6 @@ I'm sharing my stuff that accumulated over the past months and years. This inclu
 
 > [!NOTE]  
 > This repository and the containing images are using [Material Design Icons](https://pictogrammers.com/library/mdi/).
+
+## Like My Work?
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)

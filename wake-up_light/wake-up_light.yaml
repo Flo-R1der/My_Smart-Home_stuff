@@ -2,6 +2,10 @@ blueprint:
   name: Weak-up Light with sunrise effect
   description: >-
     Can control any dimmable light between two brightness values chosen in the blueprint
+    
+    
+    **Like My Work?** <br>
+    [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
   domain: automation
   author: Flo-R1der (https://github.com/Flo-R1der)
   homeassistant:

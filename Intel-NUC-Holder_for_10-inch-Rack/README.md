@@ -59,3 +59,4 @@ Please check if everything is working as expected. And don't forget the f**ing s
 After plugging in the power you can start the device device with a push on the button. Network, USB and HDMI is full accessible. In my case I I also habe an USB-C extra as a keystone insert.
 
 ### Have Fun! 🎉
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)

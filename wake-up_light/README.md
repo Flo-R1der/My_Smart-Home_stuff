@@ -48,3 +48,10 @@ This Home Assistant automation blueprint lets you create a "sunrise simulation" 
 ## 🚀 Watch the sun rise
 Once everything is set up, you will experience a smooth wake up light when you need it:
 ![](Screenshot_parabolic-shape.png)
+
+<br>
+
+---
+
+## Like My Work?
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
