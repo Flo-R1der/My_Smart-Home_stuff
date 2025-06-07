@@ -49,8 +49,8 @@ Critical Notifications can be detected by a couple of identifies. For details ab
 
 
 ## Open Topics
-- The Script is well tested with Android Devices. If anyone is finding problems with iOS Devices, feel free to optimize the blueprint and add a Pull-Request.
-- As of today (2025-01-19) only the predefined options are implemented, to identify critical notifications. It is planned to do a regex-Logic for notification tags, messages and title. The Input section is in the blueprint yaml, but the evaluation-logic is missing. This shouldn't be a big issue, but i'd rather release it first.
+- [ ] The Script is well tested with Android Devices. If anyone is finding problems with iOS Devices, feel free to optimize the blueprint and add a Pull-Request.
+- [ ] As of today (2025-01-19) only the predefined options are implemented, to identify critical notifications. It is planned to do a regex-Logic for notification tags, messages and title. The Input section is in the blueprint yaml, but the evaluation-logic is missing. This shouldn't be a big issue, but i'd rather release it first.
 
 <br>
 

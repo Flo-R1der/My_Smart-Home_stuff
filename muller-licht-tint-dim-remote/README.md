@@ -18,6 +18,9 @@ To use this blueprint:
 4. Create a new automation using the blueprint
    - Fill in the MQTT topic and assign actions to each button press
 
+## Open Topics
+- [ ] The automation works fine, but the grouping is not considered yet. If you require to control multiple groups, feel free to optimize the blueprint and add a Pull-Request.
+
 <br>
 
 ---
