@@ -13,6 +13,11 @@ I'm sharing my stuff that accumulated over the past months and years. This inclu
    - Network, USB and HDMI is full accessible. I also have an USB-C extra as a keystone insert.
    - Device can still be started with a push on the button
 
+3. **[Müller Licht tint dim remote](muller-licht-tint-dim-remote)**  
+   Control lights using the [Müller Licht 404049D dim remote](https://www.zigbee2mqtt.io/devices/404049D.html) via [Zigbee2MQTT](https://github.com/Koenkk/zigbee2mqtt).
+   - Subscribes to MQTT topics configured and controls any RGBWW light
+   - Does support (almost) all buttons including color and color temperature
+
 3. **[NINA Warnings](NINA-Warnmeldungen)**  
    For sensors from the [NINA Integration](https://www.home-assistant.io/integrations/nina/): 
    - A Home Assistant automation blueprint, to **create mobile push-notifications**, based on the severity of the Warning.
