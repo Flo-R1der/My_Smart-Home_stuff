@@ -28,6 +28,12 @@
    - Does support (almost) all buttons including color and color temperature
 
 ---
+### 🎛️ [Paulmann 4 Button smart Switch](Paulmann-501.34)
+   A Home Assistant automation blueprint can control entities using a **Paulmann 4 button Remote** like the [Paulmann 501.34](https://www.zigbee2mqtt.io/devices/501.34.html) via [Zigbee2MQTT](https://github.com/Koenkk/zigbee2mqtt).
+   - Select the Action entity of the device
+   - Define actions you want to bind to those keys.
+
+---
 ### 💻 [Intel NUC Holder for 10" racks](Intel-NUC-Holder_for_10-inch-Rack)
    A 3D printed holder for Gen.11 Intel NUC to operate the device headless and space-saving in a 10" rack.
    - Network, USB and HDMI is full accessible. I also have an USB-C extra as a keystone insert.
