@@ -1,4 +1,4 @@
-# 🎛️ Muller Licht Remote 404049D – Home Assistant Blueprint
+# 🎚️ Muller Licht Remote 404049D – Home Assistant Blueprint
 
 This is a Home Assistant automation blueprint to control lights using the **[Müller Licht 404049D dim remote](https://www.zigbee2mqtt.io/devices/404049D.html)** via **[Zigbee2MQTT](https://github.com/Koenkk/zigbee2mqtt)**. The blueprint utilizes MQTT triggers to handle button presses and provides configuration options for common actions like turning lights on/off, adjusting brightness, and cycling scenes.
 
