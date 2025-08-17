@@ -1,0 +1,122 @@
+blueprint:
+  name: Actions for Paulmann 4-Button Smart Switch
+  description: When a button is pressed, the defined actions will be executed. 
+    Tested with 501.34 but should work with other device too.
+    
+    
+    **Like My Work?** <br>
+    [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
+  domain: automation
+  author: Flo-R1der (https://github.com/Flo-R1der)
+
+  input:
+    action_entity:
+      name: '"Action" Entity of the 4-Button Device'
+      selector:
+        entity:
+          filter:
+            integration: mqtt
+            domain: sensor
+            #manufacturer: Paulmann
+          multiple: false
+    action_top_left_short:
+      name: Top-Left (short)
+      description: On 1
+      default: []
+      selector:
+        action: {}
+    action_top_left_long:
+      name: Top-Left (long)
+      description: Brightness Up 1
+      default: []
+      selector:
+        action: {}
+    action_top_right_short:
+      name: Top-Right (short)
+      description: On 2
+      default: []
+      selector:
+        action: {}
+    action_top_right_long:
+      name: Top-Right (long)
+      description: Brightness Up 2
+      default: []
+      selector:
+        action: {}
+    action_bottom_left_short:
+      name: Bottom-Left (short)
+      description: Off 1
+      default: []
+      selector:
+        action: {}
+    action_bottom_left_long:
+      name: Bottom-Left (long)
+      description: Brightness Down 1
+      default: []
+      selector:
+        action: {}
+    action_bottom_right_short:
+      name: Bottom-Right (short)
+      description: Off 2
+      default: []
+      selector:
+        action: {}
+    action_bottom_right_long:
+      name: Bottom-Right (long)
+      description: Brightness Down 2
+      default: []
+      selector:
+        action: {}
+
+triggers:
+  - trigger: state
+    entity_id: !input action_entity
+    to:
+      - on_1
+      - brightness_move_up_1
+      - off_1
+      - brightness_move_down_1
+      - on_2
+      - brightness_move_up_2
+      - off_2
+      - brightness_move_down_2
+
+conditions: []
+
+actions:
+- choose:
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'on_1' }}"
+    sequence: !input action_top_left_short
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'brightness_move_up_1' }}"
+    sequence: !input action_top_left_long
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'on_2' }}"
+    sequence: !input action_top_right_short
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'brightness_move_up_2' }}"
+    sequence: !input action_top_right_long
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'off_1' }}"
+    sequence: !input action_bottom_left_short
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'brightness_move_down_1' }}"
+    sequence: !input action_bottom_left_long
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'off_2' }}"
+    sequence: !input action_bottom_right_short
+  - conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state == 'brightness_move_down_2' }}"
+    sequence: !input action_bottom_right_long
+
+mode: parallel
+max: 10

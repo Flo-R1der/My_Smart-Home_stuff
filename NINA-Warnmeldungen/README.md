@@ -1,4 +1,4 @@
-# NINA Warnmeldungen
+# 🚨 NINA Warnmeldungen
 > [!NOTE]  
 > Since [NINA](https://www.home-assistant.io/integrations/nina/) Warnmeldungen is a integration, particularly for Germans provided by the [Bundesamt für Bevölkerungsschutz und Katastrophenhilfe (BBK)](https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/Warnung-im-Web/warnung-im-web_node.html), this documentation is written in german. It does not make any sense to me, to keep it international whereas the integration is not. If you want to learn more about NINA, feel free to reach out [Wikipedia](https://de.wikipedia.org/wiki/Warn-App_NINA).
 
@@ -21,17 +21,17 @@ Natürlich muss für all das die **NINA** Integration eingerichtet sein. Hast du
 
 <br>
 
-## 1. Automation (Blueprint)
+## ⚙️ Automation (Blueprint)
 Die Automation an sich ist recht simpel, die Herausforderung liegt im wesentlichen aber in zwei Punkten:
 - Nicht alle Warnungen sind es Wert, eine Push-Nachricht auf das Handy zu bekommen. Daher habe ich es in Abhängigkeit der Warnstufe konfigurierbar gestaltet.
 - Die passenden Attribute heraus zu schneiden ist auch nicht ganz trivial. Das wird hier aber automatisch in dem Abschnitt `variables:` vorgenommen.
 
-### Voraussetzungen
+### 📋 Voraussetzungen
 Damit Blueprint wie erwartet laufen kann, wird der [Uptime-Sensor](https://www.home-assistant.io/integrations/uptime/) genutzt. Dieser verhindert Mehrfach-Meldungen nach dem Home Assistant Neustart. Falls Ihr diesen noch nicht eingerichtet habe, könnt ihr das **[mit diesem Link](https://my.home-assistant.io/redirect/config_flow_start?domain=uptime)** erledigen.
 
-### Blueprint einrichten.
+### 🛠️ Blueprint einrichten.
 Zu aller erst muss die Voraussetzung von oben erfüllt sein und der Blueprint importiert werden: <br>
-<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=FIXME" target="_blank"><img src="https://my.home-assistant.io/badges/blueprint_import.svg"></a> <br>
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/Flo-R1der/My_Smart-Home_stuff/blob/main/NINA-Warnmeldungen/nina_warnmeldungen_blueprint.yaml)
 
 Anschließend kann eine neue Automation unter Verwendung des Blueprints erstellt werden. Die Einstellmöglichkeiten sind:
 1. **ALLE Warnsensoren** hinzufügen, die Warnmeldungen aufs Handy senden sollen  
@@ -46,14 +46,14 @@ Anschließend kann eine neue Automation unter Verwendung des Blueprints erstellt
 </details>
 <br>
 
-## 2. Benutzeroberfläche "Warnkarte" (Lovelace)
+## 📝 Benutzeroberfläche "Warnkarte" (Lovelace)
 Für die Benutzeroberfläche gibt es viele Ansätze und es sind auch einige gute in dem zugehörigen **Home-Assistant Community Thread [Getting Started with NINA Integration](https://community.home-assistant.io/t/getting-started-with-nina-integration/388468)** dokumentiert. Dennoch möchte ich hier meinen Ansatz dokumentieren, der gerne 1:1 kopiert werden kann. Dieser funktioniert tatsächlich ohne Anpassungen, sofern die Voraussetzungen erfüllt sind.
 
-### Voraussetzungen
+### 📋 Voraussetzungen
 Zur Darstellung nutze ich die [lovelace-auto-entities](https://github.com/thomasloven/lovelace-auto-entities)-Card, welche einfach und unkompliziert die passenden Entitäten sammelt. So können jederzeit weitere Gebiete oder mehr Sensoren hinzugefügt werden, ohne jedes mal die Karte anpassen zu müssen.  
 Installiert wird diese am besten über [Home Assistant Community Store (HACS)](https://www.hacs.xyz/docs/use/), alternativ [manuell gemäß dieser Beschreibung](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins).
 
-### Karte einrichten
+### 🛠️ Karte einrichten
 1. Voraussetzungen von oben sicherstellen
 2. Zum passenden Dashboard wechseln
 3. Neue Karte hinzufügen; am einfachsten über die Option "Manuell".  
@@ -67,7 +67,7 @@ Installiert wird diese am besten über [Home Assistant Community Store (HACS)](h
 
 ![Beispiel-Screenshot](example_card.png)
 
-#### Warum werden manchmal zwei Warnungen angezeigt?
+#### ❓ Warum werden manchmal zwei Warnungen angezeigt?
 Ja, das kommt leider immer wieder vor. Für die technisch interessierten gibt es Erklärung und eine Verbesserung in dem [Issue #83992](https://github.com/home-assistant/core/issues/83992).  
 Wem das zu hoch ist und lieber eine einfache Erklärung möchte: Die Warnmeldungen werden auf Kreis-Ebene erstellt und von der Integration abgeholt. Ist ein Kreis von zwei Meldungen betroffen, versucht die Integration diese anhand bestimmter Kriterien raus zu filtern, das hat aber seine Grenzen.
 <details>
@@ -82,5 +82,5 @@ Wem das zu hoch ist und lieber eine einfache Erklärung möchte: Die Warnmeldung
 
 ---
 
-## Like My Work?
+## ❤️ Like My Work?
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
