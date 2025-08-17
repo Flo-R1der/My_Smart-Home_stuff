@@ -5,7 +5,7 @@
 
 ---
 ### 🔔 [Custom flexible Notification](Custom-flexible-Notification)
-   A Home Assistant script blueprint to manage [Mobile Notifications](https://companion.home-assistant.io/docs/notifications/notifications-basic) for the Companion App in order to distribute your push-notifications, based on:
+   A Home Assistant script blueprint to **manage [Mobile Notifications](https://companion.home-assistant.io/docs/notifications/notifications-basic)** for the Companion App in order to distribute your push-notifications, based on:
    - zones the selected device is in 
    - an input-switch to turn off notifications temporary
 
@@ -17,15 +17,21 @@
 
 ---
 ### 🌅 [Wake-up Light](wake-up_light)
-   A Home Assistant automation blueprint to control any (dimmable) light with parabolic sunrise effect.
+   A Home Assistant automation blueprint to control any (dimmable) light creating a **parabolic sunrise effect**.
    - Highly customizable Trigger, Conditions and Actions
    - Can start the sunrise effect and turn off the light via schedule or custom time
 
 ---
-### 🎛️ [Müller Licht tint dim remote](muller-licht-tint-dim-remote)
-   Control lights using the [Müller Licht 404049D dim remote](https://www.zigbee2mqtt.io/devices/404049D.html) via [Zigbee2MQTT](https://github.com/Koenkk/zigbee2mqtt).
+### 🎚️ [Müller Licht tint dim remote](muller-licht-tint-dim-remote)
+   This automation blueprint can control lights using the **[Müller Licht 404049D dim remote](https://www.zigbee2mqtt.io/devices/404049D.html)** via [Zigbee2MQTT](https://github.com/Koenkk/zigbee2mqtt).
    - Subscribes to MQTT topics configured and controls any RGBWW light
    - Does support (almost) all buttons including color and color temperature
+
+---
+### 🎛️ [Paulmann 4 Button smart Switch](Paulmann-501.34)
+   A Home Assistant automation blueprint can control entities using a **Paulmann 4 button Remote** like the [Paulmann 501.34](https://www.zigbee2mqtt.io/devices/501.34.html) via [Zigbee2MQTT](https://github.com/Koenkk/zigbee2mqtt).
+   - Select the Action entity of the device
+   - Define actions you want to bind to those keys.
 
 ---
 ### 💻 [Intel NUC Holder for 10" racks](Intel-NUC-Holder_for_10-inch-Rack)
