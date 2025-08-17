@@ -14,7 +14,7 @@ To use this blueprint:
 2. Note the MQTT topic for the device (e.g., `zigbee2mqtt/muller_licht_remote`). <br>
    ![MQTT info location](mqtt-info_location.png)
 3. Import the blueprint to your Home Assistant instance: <br>
-   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=FIXME)
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/Flo-R1der/My_Smart-Home_stuff/blob/main/muller-licht-tint-dim-remote/muller-licht-tint-dim-remote.yaml)
 4. Create a new automation using the blueprint
    - Fill in the MQTT topic and assign actions to each button press
 

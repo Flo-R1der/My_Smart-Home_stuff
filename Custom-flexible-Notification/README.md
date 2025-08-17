@@ -32,7 +32,7 @@ Critical Notifications can be detected by a couple of identifies. For details ab
 
 ## How to set up the Blueprint?
 1. Import the blueprint to your Home Assistant instance: <br>
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FFlo-R1der%2FHome-Assistant-snippets)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/Flo-R1der/My_Smart-Home_stuff/blob/main/Custom-flexible-Notification/custom_flexible_notification.yaml)
 2. Click on **Custom Flexible Notification** (Script) and set up
    - which notifications are allowed to bypass the zone and toggle-button-logic
    - how critical notifications should be identified

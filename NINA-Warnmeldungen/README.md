@@ -31,7 +31,7 @@ Damit Blueprint wie erwartet laufen kann, wird der [Uptime-Sensor](https://www.h
 
 ### Blueprint einrichten.
 Zu aller erst muss die Voraussetzung von oben erfüllt sein und der Blueprint importiert werden: <br>
-<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=FIXME" target="_blank"><img src="https://my.home-assistant.io/badges/blueprint_import.svg"></a> <br>
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/Flo-R1der/My_Smart-Home_stuff/blob/main/NINA-Warnmeldungen/nina_warnmeldungen_blueprint.yaml)
 
 Anschließend kann eine neue Automation unter Verwendung des Blueprints erstellt werden. Die Einstellmöglichkeiten sind:
 1. **ALLE Warnsensoren** hinzufügen, die Warnmeldungen aufs Handy senden sollen  
