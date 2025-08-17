@@ -1,4 +1,4 @@
-# Wake-up Light with Sunrise Effect
+# 🌅 Wake-up Light with Sunrise Effect
 
 This Home Assistant automation blueprint lets you create a "sunrise simulation" wake-up light using any dimmable light entity. The light gradually increases in brightness between two defined values over a specified time interval.
 
@@ -20,7 +20,7 @@ This Home Assistant automation blueprint lets you create a "sunrise simulation" 
 2. Create a new automation using this blueprint and configure it to your preferences.
 
 
-### 🔧 Blueprint Configuration
+### 🛠️ Blueprint Configuration
 
 | Triggers |   |
 |----------|---|
@@ -53,5 +53,5 @@ Once everything is set up, you will experience a smooth wake up light when you n
 
 ---
 
-## Like My Work?
+## ❤️ Like My Work?
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)

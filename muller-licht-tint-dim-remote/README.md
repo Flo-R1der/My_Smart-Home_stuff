@@ -1,4 +1,4 @@
-# Muller Licht Remote 404049D – Home Assistant Blueprint
+# 🎛️ Muller Licht Remote 404049D – Home Assistant Blueprint
 
 This is a Home Assistant automation blueprint to control lights using the **[Müller Licht 404049D dim remote](https://www.zigbee2mqtt.io/devices/404049D.html)** via **[Zigbee2MQTT](https://github.com/Koenkk/zigbee2mqtt)**. The blueprint utilizes MQTT triggers to handle button presses and provides configuration options for common actions like turning lights on/off, adjusting brightness, and cycling scenes.
 
@@ -6,7 +6,7 @@ This is a Home Assistant automation blueprint to control lights using the **[Mü
 > Will not wok with ZHA. Instead **Zigbee2MQTT** is required for this blueprint to work.
 
 
-## Configuration
+## 🛠️ Configuration
 
 To use this blueprint:
 
@@ -18,12 +18,12 @@ To use this blueprint:
 4. Create a new automation using the blueprint
    - Fill in the MQTT topic and assign actions to each button press
 
-## Open Topics
+## 📌 Open Topics
 - [ ] The automation works fine, but the grouping is not considered yet. If you require to control multiple groups, feel free to optimize the blueprint and add a Pull-Request.
 
 <br>
 
 ---
 
-## Like My Work?
+## ❤️ Like My Work?
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
