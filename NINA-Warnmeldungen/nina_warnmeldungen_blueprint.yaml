@@ -27,19 +27,19 @@ blueprint:
             entity:
               integration: nina
               multiple: true
-        moderate_switch:
+        moderate_switch_enabled:
           name: Moderat
           description: 'Aktionen bei Warnstufe "Moderate" ausführen?'
           default: false
           selector:
             boolean:
-        severe_switch:
+        severe_switch_enabled:
           name: Hoch
           description: 'Aktionen bei Warnstufe "Severe" ausführen?'
           default: true
           selector:
             boolean:
-        extreme_switch:
+        extreme_switch_enabled:
           name: Extrem
           description: 'Aktionen bei Warnstufe "Extreme" ausführen?'
           default: true
@@ -86,31 +86,33 @@ variables:
   trigger_severity: "{{ trigger.to_state.attributes.severity|default('none') }}"
   trigger_headline: "{{ trigger.to_state.attributes.headline|default('empty') }}"
   hyperlink: https://warnung.bund.de/meldungen/{{trigger.to_state.attributes.id}}
-  moderate_switch: !input moderate_switch
-  severe_switch: !input severe_switch
-  extreme_switch: !input extreme_switch
+  moderate_switch_enabled: !input moderate_switch_enabled
+  severe_switch_enabled: !input severe_switch_enabled
+  extreme_switch_enabled: !input extreme_switch_enabled
   use_notifynotify: !input use_notifynotify
 
 condition:
   - condition: template
     alias: Breche ab, wenn "Uptime <= 3 minutes"
     value_template: >-
-      {% set uptime_seconds = now()|as_timestamp - states('sensor.uptime')|as_timestamp %} 
-      {{ uptime_seconds > 180 }}
+      {% if states('sensor.uptime') != 'unknown' %}
+        {% set uptime_seconds = now()|as_timestamp - states('sensor.uptime')|as_timestamp %}
+        {{ uptime_seconds > 180 }}
+      {% else %} True {% endif %}
   - condition: or
     alias: Prüfe die Severity & zugehörige Schalter
     conditions:
     - condition: template
       value_template: >-
-        {{ trigger_severity == "Moderate" and moderate_switch == true }}
+        {{ trigger_severity == "Moderate" and moderate_switch_enabled }}
       alias: Severity = Moderate
     - condition: template
       value_template: >-
-        {{ trigger_severity == "Severe" and severe_switch == true }}
+        {{ trigger_severity == "Severe" and severe_switch_enabled }}
       alias: Severity = Severe
     - condition: template
       value_template: >-
-        {{ trigger_severity == "Extreme" and extreme_switch == true }}
+        {{ trigger_severity == "Extreme" and extreme_switch_enabled }}
       alias: Severity = Extreme
   - condition: and
     alias: Benutzerdefinierte Bedingungen
