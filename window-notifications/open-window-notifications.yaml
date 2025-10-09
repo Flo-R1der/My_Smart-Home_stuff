@@ -111,7 +111,21 @@ blueprint:
 
         first_actions:
           name: Notification/Actions
-          description: Action that is triggered if a window is open for too long.
+          description: 
+            "Action that is triggered if a window is opened for too long.
+            
+            
+            Available Variables:
+            
+            - `Area`, where the triggering window is assigned to
+            
+            - `Time` in minutes before the action gets activated
+            
+            - `InsideTemp` current indoor temperature
+            
+            - `OutsideTemp` current outdoor temperature
+            
+            - `InOutTempDiff` the difference between indoor and outdoor temperature"
           selector:
             action: {}
           default:
@@ -128,7 +142,15 @@ blueprint:
           name: Enable a second Notification/Action
           description: 
             "If the window isn't closed after the Notification has been sent,
-            another Action cold take place."
+            another Action cold take place. Example:
+            
+            - send a Text-To-Speech Notification to any speaker or mobile device
+            
+            - close the Shutter
+            
+            - Trigger any alarm
+            
+            - ..."
           selector:
             boolean:
           default: true
@@ -137,7 +159,17 @@ blueprint:
           name: Waiting Time for second Action
           description: 
             "The original Waiting Time will be multiplied with this percentage,
-            to get the waiting time between the first action and the second action"
+            to get the waiting time between the first action and the second action. Examples:
+            
+            | original time |     60% |     90% |    120% |
+            
+            | ------------- | ------- | ------- | ------- |
+            
+            |    10 minutes |  6 min. |  9 min. | 12 min. |
+            
+            |    20 minutes | 12 min. | 18 min. | 24 min. |
+            
+            |    40 minutes | 24 min. | 36 min. | 48 min. |"
           selector:
             number:
               min: 40
@@ -150,7 +182,20 @@ blueprint:
         second_actions:
           name: Second Notification/Actions
           description: 
-            "Action that is triggered if the window is not closed after the second waiting time."
+            "Action that is triggered if the window is not closed after the second waiting time.
+            
+            
+            You can use the predefined Text-to-Speech Notification or any of the examples above.
+
+            You may also check the [documentation for critical notifications on the Home Assistant
+            Companion App](https://companion.home-assistant.io/docs/notifications/critical-notifications).
+            
+            
+            Available Variables:
+            
+            - same as above, but with one extra variable:
+            
+            - `TotalTime` in minutes before the second action gets activated"
           selector:
             action: {}
           default:
@@ -176,10 +221,19 @@ blueprint:
       collapsed: false
       input:
 
+        close_actions_enabled:
+          name: Trigger Automation when the window is closed?
+          selector:
+            boolean:
+          default: true
+
         close_actions:
           name: CLOSE Actions (e.g. retention of previous Notifications)
           description: 
             "Actions to be performed, when the window gets closed. 
+            
+            
+            Example: [Clear the previously sent notification](https://companion.home-assistant.io/docs/notifications/notifications-basic#clearing)
             
             
             Can be empty."
@@ -244,6 +298,7 @@ action:
           - if:
               - condition: template
                 value_template: "{{ above_temp_threshold }}"
+            alias: Above Temperature Threshold?
             then:
               - wait_template: "{{ is_state(trigger.entity_id, 'off') }}"
                 timeout:
@@ -254,7 +309,7 @@ action:
                   Area: "{{ area_name(trigger.entity_id) }}"
                   Time: "{{ delay_minutes | round(0, 'floor') }}"
                   TotalTime: |-
-                    {{ ( delay_minutes * wait_percent_second_action/100 ) | round(0, 'floor') }}
+                    {{ ( delay_minutes + delay_minutes*wait_percent_second_action/100 ) | round(0, 'floor') }}
                   InsideTemp: "{{ states(inside_temp_entity)|round(2) }}"
                   OutsideTemp: "{{ states(outside_temp_entity)|round(2) }}"
                   InOutTempDiff: "{{ ( InsideTemp - OutsideTemp )|round(2) }}"
@@ -287,11 +342,15 @@ action:
                 else:
                   - stop: Window closed
                 enabled: !input second_actions_enabled
+            else:
+              - stop: Temp-Difference below threshold
       - conditions:
           - condition: trigger
             id:
               - CLOSE
+          - condition: template
+            value_template: !input close_actions_enabled
         sequence: !input close_actions
 
 
-mode: single
+mode: queued
