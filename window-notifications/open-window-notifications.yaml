@@ -1,0 +1,363 @@
+blueprint:
+  name: Open Window Notifications
+  description: >-
+    This Automation Blueprint gets activated, once one of the selected windows are opened.
+    The Automation then compares the inside and outside temperature and calculate the time,
+    when a notifications should be sent, based on the provided boundaries.
+    
+    
+    ▶️ Please set up one Automation per room/area and select an appropriate temperature entity❕ <br>
+    This also enables you, to use specific time and temperature values for each room (e.g. child rooms, etc.).
+    
+
+    **Like My Work?** <br>
+    [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
+  domain: automation
+  author: Flo-R1der (https://github.com/Flo-R1der)
+  homeassistant:
+    min_version: 2024.6.0
+
+  input:
+    general:
+      name: General Input
+      icon: mdi:tune
+      description: Required to run the Blueprint
+      collapsed: false
+      input:
+
+        window_sensor_entity:
+          name: Window sensor/group
+          description: >-
+            Select the window sensor/group to be monitored. <br>
+            **NOTE**: only `binary_sensor` supported.
+            
+            
+            **HINT: If you have multiple windows in a room, create a binary-group of
+            [helpers](https://my.home-assistant.io/redirect/helpers/) with the option
+            "show as: window" and assign the appropriate area to it.**
+            This will ensure, that open/close is detected as intended.
+          selector:
+            entity:
+              filter:
+                domain: binary_sensor
+                device_class: window
+              multiple: false
+
+        inside_temp_entity:
+          name: Indoor temperature sensor
+          description: Sensor that provides the current indoor temperature.
+          selector:
+            entity:
+              filter:
+                domain: sensor
+                device_class: temperature
+
+        outside_temp_entity:
+          name: Outdoor temperature sensor
+          description: Sensor that provides the current outdoor temperature.
+          selector:
+            entity:
+              filter:
+                domain: sensor
+                device_class: temperature
+
+        min_temp_diff:
+          name: Minimum temperature difference (°C)
+          description: The dynamic calculation of the waiting time starts from this difference.
+          selector:
+            number:
+              min: 1
+              max: 10
+              step: 0.5
+              unit_of_measurement: "°C"
+              mode: slider
+          default: 5
+
+        max_temp_diff:
+          name: Maximum temperature difference (°C)
+          description: Upper limit value for temperature difference.
+          selector:
+            number:
+              min: 10
+              max: 25
+              step: 0.5
+              unit_of_measurement: "°C"
+              mode: slider
+          default: 17.5
+
+        min_warning_minutes:
+          name: Minimum waiting time (minutes)
+          description: Shortest time before a warning is triggered (for large temperature differences).
+          selector:
+            number:
+              min: 1
+              max: 15
+              step: 1
+              unit_of_measurement: "min"
+              mode: slider
+          default: 5
+
+        max_warning_minutes:
+          name: Maximum waiting time (minutes)
+          description: Longest time before a warning is triggered (with a small temperature difference).
+          selector:
+            number:
+              min: 15
+              max: 60
+              step: 1
+              unit_of_measurement: "min"
+              mode: slider
+          default: 30
+
+    open_actions:
+      name: Actions, when the window is OPENED
+      icon: mdi:message-processing-outline
+      collapsed: false
+      input:
+
+        first_actions:
+          name: Notification/Actions
+          description: 
+            "Action that is triggered if a window is opened for too long.
+            
+            
+            Available Variables:
+            
+            - `Area`, where the triggering window is assigned to
+            
+            - `Time` in minutes before the action gets activated
+            
+            - `InsideTemp` current indoor temperature
+            
+            - `OutsideTemp` current outdoor temperature
+            
+            - `InOutTempDiff` the difference between indoor and outdoor temperature"
+          selector:
+            action: {}
+          default:
+            - service: notify.notify
+              data:
+                title: It's getting cold 🥶
+                message: >-
+                  Window in {{Area}} open for over {{Time}} minutes
+                  and it's only {{OutsideTemp}}°C outside!
+                data:
+                  tag: "{{ Area }}"
+
+        second_actions_enabled:
+          name: Enable a second Notification/Action
+          description: 
+            "If the window isn't closed after the Notification has been sent,
+            another Action cold take place. Example:
+            
+            - send a Text-To-Speech Notification to any speaker or mobile device
+            
+            - close the Shutter
+            
+            - Trigger any alarm
+            
+            - ..."
+          selector:
+            boolean:
+          default: true
+
+        wait_percent_second_action:
+          name: Waiting Time for second Action
+          description: 
+            "The original Waiting Time will be multiplied with this percentage,
+            to get the waiting time between the first action and the second action. Examples:
+            
+            | original time |     60% |     90% |    120% |
+            
+            | ------------- | ------- | ------- | ------- |
+            
+            |    10 minutes |  6 min. |  9 min. | 12 min. |
+            
+            |    20 minutes | 12 min. | 18 min. | 24 min. |
+            
+            |    40 minutes | 24 min. | 36 min. | 48 min. |"
+          selector:
+            number:
+              min: 40
+              max: 120
+              step: 10
+              unit_of_measurement: "%"
+              mode: slider
+          default: 80
+
+        second_actions:
+          name: Second Notification/Actions
+          description: 
+            "Action that is triggered if the window is not closed after the second waiting time.
+            
+            
+            You can use the predefined Text-to-Speech Notification or any of the examples above.
+
+            You may also check the [documentation for critical notifications on the Home Assistant
+            Companion App](https://companion.home-assistant.io/docs/notifications/critical-notifications).
+            
+            
+            Available Variables:
+            
+            - same as above, but with one extra variable:
+            
+            - `TotalTime` in minutes before the second action gets activated"
+          selector:
+            action: {}
+          default:
+            - service: notify.notify
+              data:
+                message: TTS
+                data:
+                  tts_text: >-
+                    Window in {{Area}} open for over {{TotalTime}} minutes
+                    and it's only {{OutsideTemp}}°C outside!
+                  push:
+                    sound:
+                      critical: 1
+                      volume: 0.8
+                  ttl: 0
+                  priority: high
+                  media_stream: alarm_stream_max
+                  tag: "{{ Area }}"
+
+    close_actions:
+      name: Actions, when the window is CLOSED
+      icon: mdi:message-off-outline
+      collapsed: false
+      input:
+
+        close_actions_enabled:
+          name: Trigger Automation when the window is closed?
+          selector:
+            boolean:
+          default: true
+
+        close_actions:
+          name: CLOSE Actions (e.g. retention of previous Notifications)
+          description: 
+            "Actions to be performed, when the window gets closed. 
+            
+            
+            Example: [Clear the previously sent notification](https://companion.home-assistant.io/docs/notifications/notifications-basic#clearing)
+            
+            
+            Can be empty."
+          selector:
+            action: {}
+          default:
+            - service: notify.notify
+              data:
+                message: clear_notification
+                data:
+                  tag: "{{ area_name(trigger.entity_id) }}"
+
+
+variables:
+  window_sensor_entity: !input window_sensor_entity
+  window_sensor_state: "{{ states(window_sensor_entity) }}"
+  inside_temp_entity: !input inside_temp_entity
+  inside_temp_value: "{{ states(inside_temp_entity) }}"
+  outside_temp_entity: !input outside_temp_entity
+  outside_temp_value: "{{ states(outside_temp_entity) }}"
+  min_temp_diff: !input min_temp_diff
+  max_warning_minutes: !input max_warning_minutes
+  min_warning_minutes: !input min_warning_minutes
+  max_temp_diff: !input max_temp_diff
+  wait_percent_second_action: !input wait_percent_second_action
+
+
+triggers:
+  - trigger: state
+    entity_id: !input window_sensor_entity
+    to: "on"
+    id: OPEN
+  - trigger: state
+    entity_id: !input window_sensor_entity
+    to: "off"
+    id: CLOSE
+    enabled: !input close_actions_enabled
+
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - OPEN
+        sequence:
+          - variables:
+              inout_temp_diff: "{{ ( inside_temp_value - outside_temp_value )|round(2) }}"
+              above_temp_threshold: "{{ inout_temp_diff >= min_temp_diff }}"
+              above_max_temp_diff: "{{ inout_temp_diff >= max_temp_diff }}"
+              calculated_minutes: |-
+                {{ max_warning_minutes - 
+                  ( ( inout_temp_diff - min_temp_diff )
+                  * ( max_warning_minutes - min_warning_minutes )
+                  / ( max_temp_diff - min_temp_diff ) ) }}
+              delay_minutes: |-
+                {% if above_max_temp_diff %}
+                  {{ min_warning_minutes | round(2) }}
+                {% else %}
+                  {{ calculated_minutes | round(2) }}
+                {% endif %}
+            alias: Temp-Difference, Threshold and Delay-Variables
+          - if:
+              - condition: template
+                value_template: "{{ above_temp_threshold }}"
+            alias: Above Temperature Threshold?
+            then:
+              - wait_template: "{{ is_state(trigger.entity_id, 'off') }}"
+                timeout:
+                  minutes: "{{ delay_minutes }}"
+                continue_on_timeout: true
+                alias: Wait for closed window, or timeout
+              - variables:
+                  Area: "{{ area_name(trigger.entity_id) }}"
+                  Time: "{{ delay_minutes | round(0, 'floor') }}"
+                  TotalTime: |-
+                    {{ ( delay_minutes + delay_minutes*wait_percent_second_action/100 )|round(0,'floor') }}
+                  InsideTemp: "{{ states(inside_temp_entity)|round(2) }}"
+                  OutsideTemp: "{{ states(outside_temp_entity)|round(2) }}"
+                  InOutTempDiff: "{{ ( InsideTemp - OutsideTemp )|round(2) }}"
+                alias: Prepare Notification-Variables
+              - alias: Window still opened?
+                if:
+                  - condition: template
+                    value_template: "{{ is_state(trigger.entity_id, 'on') }}"
+                then: !input first_actions
+                else:
+                  - stop: Window closed
+              - wait_template: "{{ is_state(trigger.entity_id, 'off') }}"
+                timeout:
+                  minutes: "{{ delay_minutes * wait_percent_second_action/100 }}"
+                continue_on_timeout: true
+                alias: Wait for closed window, or timeout
+                enabled: !input second_actions_enabled
+              - variables:
+                  InsideTemp: "{{ states(inside_temp_entity)|round(2) }}"
+                  OutsideTemp: "{{ states(outside_temp_entity)|round(2) }}"
+                  InOutTempDiff: "{{ ( InsideTemp - OutsideTemp )|round(2) }}"
+                alias: Update Temperature Variables for Notifications
+                enabled: !input second_actions_enabled
+              - alias: Window still opened?
+                if:
+                  - condition: template
+                    value_template: "{{ is_state(trigger.entity_id, 'on') }}"
+                then:
+                  !input second_actions
+                else:
+                  - stop: Window closed
+                enabled: !input second_actions_enabled
+            else:
+              - stop: Temp-Difference below threshold
+      - conditions:
+          - condition: trigger
+            id:
+              - CLOSE
+          - condition: template
+            value_template: !input close_actions_enabled
+        sequence: !input close_actions
+
+
+mode: queued
