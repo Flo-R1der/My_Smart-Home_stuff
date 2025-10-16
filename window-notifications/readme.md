@@ -10,7 +10,7 @@ It dynamically adjusts the waiting time before a notification is sent — the gr
 - 🪟 **Works with any binary window or door sensor**.  
 - 🌡️ **Uses indoor and outdoor temperature sensors** to calculate the temperature difference. 
 - ⚙️ **Dynamic waiting time** – automatically adapts based on the temperature difference.  
-- 🔔 **Fully customizable actions** – send notifications, announce via Alexa, trigger alarms, or run your own automations.  
+- 🔔 **Fully customizable actions** – send notifications, announce via Alexa, trigger alarms, or run your own actions.  
 - 🔁 **Second action** – optional additional action if the window is still open after the waiting period.  
 - ✖️ **Close action** – optional action triggered when the window is closed (e.g. clear a reminder).  
 - 🧩 **Beginner-friendly demo action** – includes an example notification using Home Assistant variables.   
@@ -74,7 +74,8 @@ You can replace the demo action with any service you like — TTS to your smart 
 | Close Action                        | No (default: clear notification) | Action executed when the window is closed (e.g. clear reminders, reset state).          |
 
 > [!TIP]
-> Start with the default settings to see how it behaves, then fine-tune the temperature thresholds and waiting times to match your climate and heating habits.
+> Start with the default settings to see how it behaves, then fine-tune the temperature thresholds and waiting times to match your climate and heating habits.  
+> Or you use the [variables-and-calculation.xlsx](variables-and-calculation.xlsx)-Excel to simulate values and find your personal best fit.
 
 
 ## ❤️ Like My Work?
