@@ -25,17 +25,23 @@ blueprint:
       collapsed: false
       input:
 
-        window_sensors:
-          name: Window sensors
+        window_sensor_entity:
+          name: Window sensor/group
           description: >-
-            Select the window sensors to be monitored. <br>
+            Select the window sensor/group to be monitored. <br>
             **NOTE**: only `binary_sensor` supported.
+            
+            
+            **HINT: If you have multiple windows in a room, create a binary-group of
+            [helpers](https://my.home-assistant.io/redirect/helpers/) with the option
+            "show as: window" and assign the appropriate area to it.**
+            This will ensure, that open/close is detected as intended.
           selector:
             entity:
               filter:
                 domain: binary_sensor
                 device_class: window
-              multiple: true
+              multiple: false
 
         inside_temp_entity:
           name: Indoor temperature sensor
@@ -73,11 +79,11 @@ blueprint:
           selector:
             number:
               min: 10
-              max: 30
+              max: 25
               step: 0.5
               unit_of_measurement: "°C"
               mode: slider
-          default: 20
+          default: 17.5
 
         min_warning_minutes:
           name: Minimum waiting time (minutes)
@@ -85,7 +91,7 @@ blueprint:
           selector:
             number:
               min: 1
-              max: 10
+              max: 15
               step: 1
               unit_of_measurement: "min"
               mode: slider
@@ -96,7 +102,7 @@ blueprint:
           description: Longest time before a warning is triggered (with a small temperature difference).
           selector:
             number:
-              min: 10
+              min: 15
               max: 60
               step: 1
               unit_of_measurement: "min"
@@ -248,7 +254,8 @@ blueprint:
 
 
 variables:
-  window_sensors: !input window_sensors
+  window_sensor_entity: !input window_sensor_entity
+  window_sensor_state: "{{ states(window_sensor_entity) }}"
   inside_temp_entity: !input inside_temp_entity
   inside_temp_value: "{{ states(inside_temp_entity) }}"
   outside_temp_entity: !input outside_temp_entity
@@ -262,11 +269,11 @@ variables:
 
 triggers:
   - trigger: state
-    entity_id: !input window_sensors
+    entity_id: !input window_sensor_entity
     to: "on"
     id: OPEN
   - trigger: state
-    entity_id: !input window_sensors
+    entity_id: !input window_sensor_entity
     to: "off"
     id: CLOSE
     enabled: !input close_actions_enabled
@@ -290,8 +297,8 @@ action:
                   / ( max_temp_diff - min_temp_diff ) ) }}
               delay_minutes: |-
                 {% if above_max_temp_diff %}
-                  {{ min_warning_minutes }}
-                {% elif above_temp_threshold %}
+                  {{ min_warning_minutes | round(2) }}
+                {% else %}
                   {{ calculated_minutes | round(2) }}
                 {% endif %}
             alias: Temp-Difference, Threshold and Delay-Variables
@@ -309,7 +316,7 @@ action:
                   Area: "{{ area_name(trigger.entity_id) }}"
                   Time: "{{ delay_minutes | round(0, 'floor') }}"
                   TotalTime: |-
-                    {{ ( delay_minutes + delay_minutes*wait_percent_second_action/100 ) | round(0, 'floor') }}
+                    {{ ( delay_minutes + delay_minutes*wait_percent_second_action/100 )|round(0,'floor') }}
                   InsideTemp: "{{ states(inside_temp_entity)|round(2) }}"
                   OutsideTemp: "{{ states(outside_temp_entity)|round(2) }}"
                   InOutTempDiff: "{{ ( InsideTemp - OutsideTemp )|round(2) }}"
