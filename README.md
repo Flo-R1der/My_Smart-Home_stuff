@@ -10,6 +10,12 @@
    - an input-switch to turn off notifications temporary
 
 ---
+### 🪟 [Open Window Notifications](window-notifications)
+   A Home Assistant automation blueprint to **notify you when a window or door is left open too long**
+   - Calculates a **dynamic waiting time** based on the **indoor-outdoor temperature difference**.
+   - Supports predefined or custom actions for notifications, second alerts, and clear notification  
+
+---
 ### 🚨 [NINA Warnings](NINA-Warnmeldungen)
    For sensors from the [NINA Integration](https://www.home-assistant.io/integrations/nina/): 
    - A Home Assistant automation blueprint, to **create mobile push-notifications**, based on the severity of the Warning.
