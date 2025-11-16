@@ -1,4 +1,4 @@
-### 🌬️ [Südwind Ambientika smart Package for Home Assistant](../ambientika-smart_4_home-assistant)
+### 🌬️ [Südwind Ambientika smart Package for Home Assistant](https://github.com/Flo-R1der/ambientika-smart_4_home-assistant)
    The package in this separate repository provides multiple yaml config files that will create:
    - REST sensors, (REST) scripts, automations, and other config entities for using the Südwind Ambientika smart within Home Assistant
    - multiple UI copy-past examples for the using the package
