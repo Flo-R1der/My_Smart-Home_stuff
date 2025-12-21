@@ -79,35 +79,33 @@ blueprint:
               - label: "'channel: alarm_stream' or 'channel: alarm_stream_max'"
                 value: alarm_channel_enabled
               multiple: true
-        # alarm_tag:
-        #   name: Notification tags
-        #   description: >-
-        #     Use Regex to define notification tags to identify critical notifications. 
-        #     The logic implemented here is case insensitive, so you don't need to take care of that.
-        #     
-        #     
-        #     **NOTE**: If you're having a hard time using Regex, simply go to [regex101.com](https://regex101.com/)
-        #     and try the logic over there. It's simple and super responsive. 
-        #     I also use it when doing Regex. 
-        #   default: "⚡.*|🔥.*|🛑.*|❗.*|⚠.*|🚩.*|.*Alarm.*|.*Critical.*|.*Intruder.*|.*Smoke.*|.*Warning.*"
-        #   selector:
-        #     text:
-        # alarm_message:
-        #   name: Notification messages
-        #   description: >-
-        #     Use Regex to define notification messages to identify critical notifications. 
-        #     The logic implemented here is case insensitive, so you don't need to take care of that.
-        #   default: "⚡.*|🔥.*|🛑.*|❗.*|⚠.*|🚩.*|.*Alarm.*|.*Critical.*|.*Intruder.*|.*Smoke.*|.*Warning.*"
-        #   selector:
-        #     text:
-        # alarm_title:
-        #   name: Notification titles
-        #   description: >-
-        #     Use Regex to define notification titles to identify critical notifications. 
-        #     The logic implemented here is case insensitive, so you don't need to take care of that.
-        #   default: "⚡.*|🔥.*|🛑.*|❗.*|⚠.*|🚩.*|.*Alarm.*|.*Critical.*|.*Intruder.*|.*Smoke.*|.*Warning.*"
-        #   selector:
-        #     text:
+        alarm_tag:
+          name: Critical notification tags
+          description: >-
+            Uses the [Regex search](https://www.home-assistant.io/docs/configuration/templating/#regular-expressions) 
+            to identify critical notifications. <br>
+            Case insensitive. Leave blank if you don't want to use this identifier.
+          default: "⚡|🔥|🛑|❗|⚠|🚩|Alarm|Critical|Intruder|Smoke|Warning"
+          selector:
+            text:
+        alarm_message:
+          name: Critical notification messages
+          description: >-
+            Uses the [Regex search](https://www.home-assistant.io/docs/configuration/templating/#regular-expressions) 
+            to identify critical notifications. <br>
+            Case insensitive. Leave blank if you don't want to use this identifier.
+          default: "⚡|🔥|🛑|❗|⚠|🚩|Alarm|Critical|Intruder|Smoke|Warning"
+          selector:
+            text:
+        alarm_title:
+          name: Critical notification titles
+          description: >-
+            Uses the [Regex search](https://www.home-assistant.io/docs/configuration/templating/#regular-expressions) 
+            to identify critical notifications. <br>
+            Case insensitive. Leave blank if you don't want to use this identifier.
+          default: "⚡|🔥|🛑|❗|⚠|🚩|Alarm|Critical|Intruder|Smoke|Warning"
+          selector:
+            text:
 
     Device_A_section:
       name: Device A
@@ -389,9 +387,9 @@ variables:
   send_clear_to_all: !input send_clear_to_all
   send_critical_to_all: !input send_critical_to_all
   critical_ident: !input critical_ident
-  # alarm_tag: !input alarm_tag
-  # alarm_message: !input alarm_message
-  # alarm_title: !input alarm_title
+  alarm_tag: !input alarm_tag
+  alarm_message: !input alarm_message
+  alarm_title: !input alarm_title
 
   Device_A: !input Device_A
   Switch_A: !input Switch_A
@@ -459,16 +457,22 @@ sequence:
       is_critical_notification: |-
         {% if data is defined %}
           {% set critical_1 = data.get('push', {}).get('sound', {}).get('critical', 0) == 1 %}
-          {% set critical_2 = data.get('push', {}).get('interruption-level', "") == "critical" %}
+          {% set critical_2 = data.get('push', {}).get('interruption-level', '') == "critical" %}
           {% set critical_3 = data.get('priority', '') == "high" %}
-          {% set critical_4 = "alarm_stream" in data.get('channel', "") %}
+          {% set critical_4 = "alarm_stream" in data.get('channel', '') %}
+          {% set critical_tag = data.get('tag', '') is search(alarm_tag, ignorecase=true) %}
+          {% set critical_title = title is search(alarm_title, ignorecase=true) %}
+          {% set critical_message = message is search(alarm_message, ignorecase=true) %}
         {% endif %}
         {% set is_critical_notification = (
           critical_1 and 'sound_critical_enabled' in critical_ident
           or critical_2 and 'interruption_critical_enabled' in critical_ident
           or critical_3 and 'priority_high_enabled' in critical_ident
-          or critical_4 and 'alarm_channel_enabled' in critical_ident)
-          |default(false) %}
+          or critical_4 and 'alarm_channel_enabled' in critical_ident
+          or critical_tag and alarm_tag != ""
+          or critical_title and alarm_title != ""
+          or critical_message and alarm_message != ""
+          )|default(false) %}
         {{ is_critical_notification }}
       is_clear_notification: |-
         {{ message == 'clear_notification' }}
