@@ -7,6 +7,9 @@
   'priority_high_enabled',
   'alarm_channel_enabled']
 %}
+{% set alarm_tag     = "⚡|🔥|🛑|❗|⚠|🚩|Alarm|Critical|Intruder|Smoke|Warning" %}
+{% set alarm_message = "⚡|🔥|🛑|❗|⚠|🚩|Alarm|Critical|Intruder|Smoke|Warning" %}
+{% set alarm_title   = "⚡|🔥|🛑|❗|⚠|🚩|Alarm|Critical|Intruder|Smoke|Warning" %}
 
 {% set devices =
   [ {
@@ -59,6 +62,7 @@ number_devices: {{ number.devices }}
 
 {## Notification Variable Input ##}
 {% set message = 'clear_notification' %}
+{% set title = "This is not a test!" %}
 {% set data = {
   "push": {
     "sound": {
@@ -68,7 +72,8 @@ number_devices: {{ number.devices }}
     },
   "ttl": 0,
   "priority": "not_high",
-  "channel": "blarm_stream_max"
+  "channel": "blarm_stream_max",
+  "tag": "UnspectecularTag"
   }
 %}
 
@@ -78,14 +83,20 @@ number_devices: {{ number.devices }}
   {% set critical_1 = data.get('push', {}).get('sound', {}).get('critical', 0) == 1 %}
   {% set critical_2 = data.get('push', {}).get('interruption-level', '') == "critical" %}
   {% set critical_3 = data.get('priority', '') == "high" %}
-  {% set critical_4 = "alarm_stream" in data.get('channel', "") %}
+  {% set critical_4 = "alarm_stream" in data.get('channel', '') %}
+  {% set critical_tag = data.get('tag', '') is search(alarm_tag, ignorecase=true) %}
+  {% set critical_title = title is search(alarm_title, ignorecase=true) %}
+  {% set critical_message = message is search(alarm_message, ignorecase=true) %}
 {% endif %}
 {% set is_critical_notification = (
   critical_1 and 'sound_critical_enabled' in critical_ident
   or critical_2 and 'interruption_critical_enabled' in critical_ident
   or critical_3 and 'priority_high_enabled' in critical_ident
-  or critical_4 and 'alarm_channel_enabled' in critical_ident)
-  |default(false) %}
+  or critical_4 and 'alarm_channel_enabled' in critical_ident
+  or critical_tag and alarm_tag != ""
+  or critical_title and alarm_title != ""
+  or critical_message and alarm_message != ""
+  )|default(false) %}
 {{ is_critical_notification }}
 is_critical_notification: {{ is_critical_notification }}
 
