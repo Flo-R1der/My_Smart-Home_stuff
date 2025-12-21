@@ -33,12 +33,10 @@ blueprint:
         send_clear_to_all:
           name: Send 'clear_notification' always for ALL DEVICES in Home Assistant
           description: >-
-            You can enable this Option, if you want '[clear_notification](https://companion.home-assistant.io/docs/notifications/notifications-basic#clearing)'
-            -messages always been delivered to ALL DEVICES in Home Assistant.
+            Details about '[clear_notification](https://companion.home-assistant.io/docs/notifications/notifications-basic#clearing)'
             
             
-            **NOTE**: The original notification and the clear_notification must have the same tag assigned to it.
-            This is how the mobile app knows, which message should be cleared.  
+            **NOTE**: The original notification and the `clear_notification` must have the same tag.
             Specifically for Android devices, the original notification also requires the `persistent: true` property.
           default: true
           selector:
@@ -46,8 +44,7 @@ blueprint:
         send_critical_to_all:
           name: Send critical notifications to ALL DEVICES in Home Assistant?
           description: >-
-            You can enable this Option, if you want [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
-            always been delivered to ALL DEVICES in Home Assistant.
+            Details about [Critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
 
 
             **NOTE: This will ignore all device specific settings, switches and zones!**
@@ -55,13 +52,10 @@ blueprint:
           selector:
             boolean:
         critical_ident:
-          name: Predefined options for critical notifications
+          name: Predefined options for CRITICAL NOTIFICATIONS
           description: >-
-            Here you can define how critical notifications are identified.
+            How to identify critical notifications?
             See [Home Assistant Companion Documentation](https://companion.home-assistant.io/docs/notifications/critical-notifications/) for more information.
-            
-            
-            **NOTE**: If you're not sure what to do, just use the default values.
           default:
           - sound_critical_enabled
           - interruption_critical_enabled
@@ -121,10 +115,9 @@ blueprint:
         Switch_A:
           name: On/Off Switch for Device A
           description: >-
-            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
-            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
-            (e.g. holidays, business trips, ...).  <br>
-            **If you need to create a helper, you can do that [here](/config/helpers).**
+            `input_boolean` helper to turn on/off the notifications temporary (e.g. holidays, business trips, ...).
+            This switch can then be placed in the UI for easy access to all users.  <br>
+            **You can create the helper [here](/config/helpers).**
             
             
             **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
@@ -135,11 +128,11 @@ blueprint:
         Zones_A:
           name: Excluded Zones for Device A
           description: >-
-            Select the Zones, which should block sending notifications. If the device selected above 
-            is in a excluded zone, regular notifications will be skipped.
+            If the device selected above is in an excluded zone (work, school, university, gym, ...), 
+            regular notifications will be skipped.
             
             
-            **If you need additional zones, you can set them up [here](/config/zone)**
+            **If you need additional zones, you can set them up [here](/config/zone)**.
           default: []
           selector:
             entity:
@@ -176,10 +169,9 @@ blueprint:
         Switch_B:
           name: On/Off Switch for Device B
           description: >-
-            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
-            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
-            (e.g. holidays, business trips, ...).  <br>
-            **If you need to create a helper, you can do that [here](/config/helpers).**
+            `input_boolean` helper to turn on/off the notifications temporary (e.g. holidays, business trips, ...).
+            This switch can then be placed in the UI for easy access to all users.  <br>
+            **You can create the helper [here](/config/helpers).**
             
             
             **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
@@ -190,11 +182,11 @@ blueprint:
         Zones_B:
           name: Excluded Zones for Device B
           description: >-
-            Select the Zones, which should block sending notifications. If the device selected above 
-            is in a excluded zone, regular notifications will be skipped.
+            If the device selected above is in an excluded zone (work, school, university, gym, ...), 
+            regular notifications will be skipped.
             
             
-            **If you need additional zones, you can set them up [here](/config/zone)**
+            **If you need additional zones, you can set them up [here](/config/zone)**.
           default: []
           selector:
             entity:
@@ -231,10 +223,9 @@ blueprint:
         Switch_C:
           name: On/Off Switch for Device C
           description: >-
-            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
-            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
-            (e.g. holidays, business trips, ...).  <br>
-            **If you need to create a helper, you can do that [here](/config/helpers).**
+            `input_boolean` helper to turn on/off the notifications temporary (e.g. holidays, business trips, ...).
+            This switch can then be placed in the UI for easy access to all users.  <br>
+            **You can create the helper [here](/config/helpers).**
             
             
             **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
@@ -245,11 +236,11 @@ blueprint:
         Zones_C:
           name: Excluded Zones for Device C
           description: >-
-            Select the Zones, which should block sending notifications. If the device selected above 
-            is in a excluded zone, regular notifications will be skipped.
+            If the device selected above is in an excluded zone (work, school, university, gym, ...), 
+            regular notifications will be skipped.
             
             
-            **If you need additional zones, you can set them up [here](/config/zone)**
+            **If you need additional zones, you can set them up [here](/config/zone)**.
           default: []
           selector:
             entity:
@@ -286,10 +277,9 @@ blueprint:
         Switch_D:
           name: On/Off Switch for Device D
           description: >-
-            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
-            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
-            (e.g. holidays, business trips, ...).  <br>
-            **If you need to create a helper, you can do that [here](/config/helpers).**
+            `input_boolean` helper to turn on/off the notifications temporary (e.g. holidays, business trips, ...).
+            This switch can then be placed in the UI for easy access to all users.  <br>
+            **You can create the helper [here](/config/helpers).**
             
             
             **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
@@ -300,11 +290,11 @@ blueprint:
         Zones_D:
           name: Excluded Zones for Device D
           description: >-
-            Select the Zones, which should block sending notifications. If the device selected above 
-            is in a excluded zone, regular notifications will be skipped.
+            If the device selected above is in an excluded zone (work, school, university, gym, ...), 
+            regular notifications will be skipped.
             
             
-            **If you need additional zones, you can set them up [here](/config/zone)**
+            **If you need additional zones, you can set them up [here](/config/zone)**.
           default: []
           selector:
             entity:
@@ -341,10 +331,9 @@ blueprint:
         Switch_E:
           name: On/Off Switch for Device E
           description: >-
-            Select the `input_boolean`, which controls if notifications should be delivered to the selected device or not.
-            This switch can then be placed in the UI to easily control the notification behavior in case of longer absence 
-            (e.g. holidays, business trips, ...).  <br>
-            **If you need to create a helper, you can do that [here](/config/helpers).**
+            `input_boolean` helper to turn on/off the notifications temporary (e.g. holidays, business trips, ...).
+            This switch can then be placed in the UI for easy access to all users.  <br>
+            **You can create the helper [here](/config/helpers).**
             
             
             **NOTE**: You can leave this field empty and the script will assume an 'on' state by default.
@@ -355,11 +344,11 @@ blueprint:
         Zones_E:
           name: Excluded Zones for Device E
           description: >-
-            Select the Zones, which should block sending notifications. If the device selected above 
-            is in a excluded zone, regular notifications will be skipped.
+            If the device selected above is in an excluded zone (work, school, university, gym, ...), 
+            regular notifications will be skipped.
             
             
-            **If you need additional zones, you can set them up [here](/config/zone)**
+            **If you need additional zones, you can set them up [here](/config/zone)**.
           default: []
           selector:
             entity:
