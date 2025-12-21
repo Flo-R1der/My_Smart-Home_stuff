@@ -149,9 +149,9 @@ blueprint:
           selector:
             select:
               options:
-              - label: "Ignore the device Switch for critical notifications?"
+              - label: "IGNORE SWITCH for critical notifications"
                 value: ignore_switch
-              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+              - label: "IGNORE ZONE for critical notifications"
                 value: ignore_zone
               multiple: true
 
@@ -203,9 +203,9 @@ blueprint:
           selector:
             select:
               options:
-              - label: "Ignore the device Switch for critical notifications?"
+              - label: "IGNORE SWITCH for critical notifications"
                 value: ignore_switch
-              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+              - label: "IGNORE ZONE for critical notifications"
                 value: ignore_zone
               multiple: true
 
@@ -257,9 +257,9 @@ blueprint:
           selector:
             select:
               options:
-              - label: "Ignore the device Switch for critical notifications?"
+              - label: "IGNORE SWITCH for critical notifications"
                 value: ignore_switch
-              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+              - label: "IGNORE ZONE for critical notifications"
                 value: ignore_zone
               multiple: true
 
@@ -311,9 +311,9 @@ blueprint:
           selector:
             select:
               options:
-              - label: "Ignore the device Switch for critical notifications?"
+              - label: "IGNORE SWITCH for critical notifications"
                 value: ignore_switch
-              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+              - label: "IGNORE ZONE for critical notifications"
                 value: ignore_zone
               multiple: true
 
@@ -365,9 +365,9 @@ blueprint:
           selector:
             select:
               options:
-              - label: "Ignore the device Switch for critical notifications?"
+              - label: "IGNORE SWITCH for critical notifications"
                 value: ignore_switch
-              - label: "Ignore the person zone (work, school, university, gym, ...) for critical notifications?"
+              - label: "IGNORE ZONE for critical notifications"
                 value: ignore_zone
               multiple: true
 
