@@ -1,0 +1,124 @@
+blueprint:
+  name: Ventilation Recommendation
+  description: >-
+    Creates a binary_sensor which first calculates the theoretic room humidity improvement based on the 
+    - outside temperature (°C)
+    - outside humidity (%)
+    - inside temperature (°C)
+    - inside humidity (%)
+    - required minimum improvement value (%)
+    - threshold room humidity (%)
+      - if the inside humidity is below that value, the sensor will always stay `off`
+  domain: template
+  author: Flo-R1der (https://github.com/Flo-R1der)
+  input:
+    outside_temperature:
+      name: Outside Temperature Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    outside_humidity:
+      name: Outside Humidity Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+    inside_temperature:
+      name: Inside Temperature Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    inside_humidity:
+      name: Inside Humidity Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+    minimum_improvement_value:
+      name: Required Minimum Improvement Value
+      selector:
+        number:
+          unit_of_measurement: "%"
+    threshold_room_humidity:
+      name: Room Humidity Threshold
+      description: If the inside humidity is below that value, the sensor will always stay `off`
+      selector:
+        number:
+          unit_of_measurement: "%"
+
+variables:
+  outside_temperature: !input outside_temperature
+  outside_humidity: !input outside_humidity
+  inside_temperature: !input inside_temperature
+  inside_humidity: !input inside_humidity
+  minimum_improvement_value: !input minimum_improvement_value
+  threshold_room_humidity: !input threshold_room_humidity
+
+binary_sensor:
+  availability: >-
+    {{ states(outside_temperature) not in ['unknown', 'unavailable'] 
+    and states(outside_humidity) not in ['unknown', 'unavailable'] 
+    and states(inside_temperature) not in ['unknown', 'unavailable'] 
+    and states(inside_humidity) not in ['unknown', 'unavailable'] }}
+  state: >-
+    {% set RH = states(outside_humidity)|float %}
+    {% set T = states(outside_temperature)|float %}
+    {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) %}
+    {% set T = states(inside_temperature)|float %}
+    {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) %}
+    {% set DIFF = ( RH - states(inside_humidity)|float ) %}
+    
+    {{ states(inside_humidity)|float >= threshold_room_humidity|float
+    and DIFF*-1 >= minimum_improvement_value|float }}
+  attributes:
+    outside_temperature: "{{ states(outside_temperature) }} °C"
+    outside_humidity: "{{ states(outside_humidity) }} %"
+    inside_temperature: "{{ states(inside_temperature) }} °C"
+    inside_humidity: "{{ states(inside_humidity) }} %"
+    minimum_improvement_value: "{{ minimum_improvement_value }} %"
+    threshold_room_humidity: "{{ threshold_room_humidity }} %"
+    absolute_humidity_outside: >-
+      {% set RH = states(outside_humidity)|float %}
+      {% set T = states(outside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) | round(2) %}
+      {{ AH }} g/m³
+    absolute_humidity_inside: >-
+      {% set RH = states(inside_humidity)|float %}
+      {% set T = states(inside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) | round(2) %}
+      {{ AH }} g/m³
+    potential_humidity: >-
+      {% set RH = states(outside_humidity)|float %}
+      {% set T = states(outside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) %}
+      {% set T = states(inside_temperature)|float %}
+      {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) | round(1) %}
+      {{ RH }} %
+    potential_improvement: >-
+      {% set RH = states(outside_humidity)|float %}
+      {% set T = states(outside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) %}
+      {% set T = states(inside_temperature)|float %}
+      {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) %}
+      {% set DIFF = ( RH - states(inside_humidity)|float ) | round(1) %}
+      {{ DIFF * -1 }} %
+    above_indoor_threshold: >-
+      {{ states(inside_humidity)|float >= threshold_room_humidity|float }}
+    above_minimum_improvement: >-
+      {% set RH = states(outside_humidity)|float %}
+      {% set T = states(outside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) | round(2) %}
+      {% set T = states(inside_temperature)|float %}
+      {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) %}
+      {% set DIFF = ( RH - states(inside_humidity)|float ) %}
+      {{ DIFF*-1 >= minimum_improvement_value|float }}
+  icon: >-
+    {% if is_state(this.entity_id, 'on') %}
+      mdi:window-open
+    {% elif is_state(this.entity_id, 'off') %}
+      mdi:window-closed
+    {% else %}
+      mdi:help
+    {% endif %}
