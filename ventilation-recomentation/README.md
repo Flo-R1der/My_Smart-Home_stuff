@@ -2,6 +2,46 @@
 
 
 
+```mermaid
+flowchart TD
+    subgraph 1
+    direction LR
+    A@{ shape: brace-r, label: "Temperature (°C)<br>Humidity (%)" }
+    B("Absolute Humidity (g/m³)")
+    C@{ shape: text, label: "Input Sensor Values" }
+    A -- Sensors --> B -. Attributes .- C
+    end
+
+    subgraph 2
+    direction LR
+    D@{ shape: brace-r, label: "Inside Temperature (°C)<br>Inside Humidity (%)
+    Outside Temperature (°C)<br>Outside Humidity (%)" }
+    E("Potential Humidity Improvement (%)")
+    F@{ shape: text, label: "Input Sensor Values in/out
+    Absolute humidity in/out
+    Potential humidity (%)" }
+    D -- Sensors --> E -. Attributes .- F
+    end
+
+    subgraph 3
+    direction LR
+    G@{ shape: brace-r, label: "Inside Temperature (°C)<br>Inside Humidity (%)
+    Outside Temperature (°C)<br>Outside Humidity (%)" }
+    H@{ shape: brace-r, label: "Minimum Improvement (%)
+    Humidity Threshold (%)" }
+    I("Ventilation Recommendation (yes/no)")
+    J@{ shape: text, label: "Input Sensor Values in/out
+    Absolute humidity in/out
+    Potential humidity (%)
+    Potential improvement (%)
+    Above indoor threshold?
+    Above min improvement?" }
+    G -- Sensors --> I -. Attributes .- J
+    H -- User Input --> I
+    end
+    
+    1 --- 2 --- 3
+```
 
 
 ## 1. Calculate the Absolute Humidity
