@@ -72,5 +72,12 @@ sensor:
       {% set T = states(inside_temperature)|float %}
       {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) | round(2) %}
       {{ AH }} g/m³
+    potential_humidity: >-
+      {% set RH = states(outside_humidity)|float %}
+      {% set T = states(outside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) %}
+      {% set T = states(inside_temperature)|float %}
+      {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) | round(1) %}
+      {{ RH }} %
   unit_of_measurement: "%"
   icon: mdi:water-percent
