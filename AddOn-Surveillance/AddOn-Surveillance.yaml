@@ -36,8 +36,8 @@ blueprint:
         entity:
           integration: hassio
           device_class: running
-        multiple: true
-    manual_list:
+          multiple: true
+    manual_selection:
       name: Manual Selection
       description: '**Only applicable if the "Manual Selection"-Mode is chosen**'
       default: []
@@ -45,11 +45,11 @@ blueprint:
         entity:
           integration: hassio
           device_class: running
-        multiple: true
+          multiple: true
     waiting_minutes:
       name: Trigger Waiting Time
       description: >-
-        The time how long the AddOns are allowed to be stopped, before this Automation will be triggered<br>
+        Delay, before this Automation will be triggered<br>
         **NOTE**: On Startup of Home Assistant it may take some time to detect the "running" state.
       default: 7
       selector:
@@ -106,7 +106,7 @@ blueprint:
       selector:
         device:
           integration: mobile_app
-        multiple: true
+          multiple: true
 
     post_actions:
       name: POST Actions
@@ -120,43 +120,39 @@ blueprint:
 trigger_variables:
   surveillance_mode: !input surveillance_mode
   excluded_entities: !input exclude_list
-  manual_list: !input manual_list
-
-  all_running_sensors: "{{ integration_entities('hassio')
-    | select('is_state_attr', 'device_class', 'running') | list }}"
-  not_running: >-
-    {% set not_running = namespace(entities=[], names=[]) -%}
-    {% for sensor in all_running_sensors -%}
-      {% if is_state(sensor, 'off') -%}
-        {% set not_running.entities = not_running.entities + [sensor] -%}
-        {% set not_running.names = not_running.names + [device_name(sensor)] -%}
-      {% endif -%}
-    {% endfor -%}
-    {{ not_running }}
-  trigger_list: >-
-    {% set trigger_list = namespace(entities=[], names=[]) -%}
-    {% if surveillance_mode == "all" -%}
-      {% set trigger_list = not_running -%}
-    {% elif surveillance_mode == "exclude" -%}
-      {% for sensor in not_running.entities -%}
-        {% if sensor not in excluded_entities -%}
-          {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
-          {% set trigger_list.names = trigger_list.names + [device_name(sensor)] -%}
-        {% endif -%}
-      {% endfor -%}
-    {% elif surveillance_mode == "manual" -%}
-      {% for sensor in not_running.entities -%}
-        {% if sensor in manual_list -%}
-          {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
-          {% set trigger_list.names = trigger_list.names + [device_name(sensor)] -%}
-        {% endif -%}
-      {% endfor -%}
-    {% endif -%}
-    {{ trigger_list }}
+  manual_selection: !input manual_selection
 
 triggers:
   - trigger: template
-    value_template: "{{ trigger_list.entities|count > 0 }}"
+    value_template: |-
+      {% set all_running_sensors = integration_entities('hassio')
+        | select('is_state_attr', 'device_class', 'running') | list %}
+
+      {% set not_running = namespace(entities=[]) -%}
+      {% for sensor in all_running_sensors -%}
+        {% if is_state(sensor, 'off') -%}
+          {% set not_running.entities = not_running.entities + [sensor] -%}
+        {% endif -%}
+      {% endfor -%}
+
+      {% set trigger_list = namespace(entities=[]) -%}
+      {% if surveillance_mode == "all" -%}
+        {% set trigger_list.entities = not_running.entities -%}
+      {% elif surveillance_mode == "exclude" -%}
+        {% for sensor in not_running.entities -%}
+          {% if sensor not in excluded_entities -%}
+            {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+          {% endif -%}
+        {% endfor -%}
+      {% elif surveillance_mode == "manual" -%}
+        {% for sensor in not_running.entities -%}
+          {% if sensor in manual_selection -%}
+            {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+          {% endif -%}
+        {% endfor -%}
+      {% endif -%}
+
+      {{ trigger_list.entities|count > 0 }}
     for:
       hours: 0
       minutes: !input waiting_minutes
