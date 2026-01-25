@@ -192,15 +192,15 @@ actions:
         {{ not_running.entities }}
       trigger_list: |-
         {% set trigger_list = namespace(entities=[]) -%}
-        {% if notification_mode == "all" -%}
+        {% if surveillance_mode == "all" -%}
           {% set trigger_list.entites = not_running|list -%}
-        {% elif notification_mode == "exclude" -%}
+        {% elif surveillance_mode == "exclude" -%}
           {% for sensor in not_running|list -%}
             {% if sensor not in excluded_entities -%}
               {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
             {% endif -%}
           {% endfor -%}
-        {% elif notification_mode == "manual" -%}
+        {% elif surveillance_mode == "manual" -%}
           {% for sensor in not_running|list -%}
             {% if sensor in manual_selection -%}
               {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
@@ -210,7 +210,7 @@ actions:
         {{ trigger_list.entities }}
       notification_message: >-
         {% for sensor in trigger_list|list -%} 
-        - {{ device_name(sensor) }}
+        • {{ device_name(sensor) }}
         {% endfor -%}
 
   - alias: PRE Actions
@@ -228,7 +228,7 @@ actions:
               message: "{{ notification_message }}"
               title: "{{ notification_title }}"
               data:
-                tag: addon_survillance
+                tag: addon_surveillance
                 channel: Alarm
                 sticky: true
                 clickaction: /hassio/dashboard
@@ -239,11 +239,32 @@ actions:
             value_template: "{{ notification_mode == 'selected' }}"
         alias: Notify SELECTED Mobile Devices
         sequence:
-          - 
-
+          - repeat:
+              for_each: "{{ selected_devices }}"
+              sequence:
+                - variables:
+                    notify_service: >-
+                      {% set notify_service = 'notify.mobile_app_' ~ device_attr(repeat.item, 'name') 
+                        | replace(' ', '_') | replace('-', '_') %}
+                      {{ notify_service }}
+                - action: "{{ notify_service }}"
+                  data:
+                    message: "{{ notification_message }}"
+                    title: "{{ notification_title }}"
+                    data:
+                      tag: addon_surveillance
+                      channel: Alarm
+                      sticky: true
+                      clickaction: /hassio/dashboard
+                      notification_icon: mdi:alert-decagram
       - conditions:
           - condition: template
             value_template: "{{ notification_mode == 'persistent' }}"
         alias: Notify with PERSISTENT Notifications
         sequence:
-          - 
+          - action: persistent_notification.create
+            data:
+              notification_id: addon_surveillance
+              message: |
+                ## {{ notification_title }}
+                {{ notification_message | replace('•', '-') }}
