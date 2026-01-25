@@ -76,7 +76,7 @@ blueprint:
       selector:
         action:
     notification_mode:
-      name: "Surveillance Mode"
+      name: "Notification Mode"
       description: >-
         **Push to all Devices** uses the `notify.notify`-Service to inform all mobile devices
         
@@ -107,6 +107,14 @@ blueprint:
         device:
           integration: mobile_app
           multiple: true
+    notification_title:
+      name: Notification Title
+      description: >-
+        Here, you can specify the Title of the Notification.<br>
+        The Message will contain the list of not started AddOns.
+      default: "⚠️ AddOn not started"
+      selector:
+        text:
 
     post_actions:
       name: POST Actions
@@ -162,6 +170,7 @@ triggers:
 variables:
   notification_mode: !input notification_mode
   selected_devices: !input selected_devices
+  notification_title: !input notification_title
 
 
 conditions:
@@ -169,4 +178,72 @@ conditions:
 
 
 actions:
+  - variables:
+      all_running_sensors: >-
+        {{ integration_entities('hassio') | select('is_state_attr',
+        'device_class', 'running') | list }}
+      not_running: >-
+        {% set not_running = namespace(entities=[]) -%}
+        {% for sensor in all_running_sensors -%}
+          {% if is_state(sensor, 'off') -%}
+            {% set not_running.entities = not_running.entities + [sensor] -%}
+          {% endif -%}
+        {% endfor -%}
+        {{ not_running.entities }}
+      trigger_list: |-
+        {% set trigger_list = namespace(entities=[]) -%}
+        {% if notification_mode == "all" -%}
+          {% set trigger_list.entites = not_running|list -%}
+        {% elif notification_mode == "exclude" -%}
+          {% for sensor in not_running|list -%}
+            {% if sensor not in excluded_entities -%}
+              {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+            {% endif -%}
+          {% endfor -%}
+        {% elif notification_mode == "manual" -%}
+          {% for sensor in not_running|list -%}
+            {% if sensor in manual_selection -%}
+              {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+            {% endif -%}
+          {% endfor -%}
+        {% endif -%}
+        {{ trigger_list.entities }}
+      notification_message: >-
+        {% for sensor in trigger_list|list -%} 
+        - {{ device_name(sensor) }}
+        {% endfor -%}
 
+  - alias: PRE Actions
+    sequence:
+      !input pre_actions
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ notification_mode == 'all' }}"
+        alias: Notify ALL Mobile Devices
+        sequence:
+          - action: notify.notify
+            data:
+              message: "{{ notification_message }}"
+              title: "{{ notification_title }}"
+              data:
+                tag: addon_survillance
+                channel: Alarm
+                sticky: true
+                clickaction: /hassio/dashboard
+                notification_icon: mdi:alert-decagram
+
+      - conditions:
+          - condition: template
+            value_template: "{{ notification_mode == 'selected' }}"
+        alias: Notify SELECTED Mobile Devices
+        sequence:
+          - 
+
+      - conditions:
+          - condition: template
+            value_template: "{{ notification_mode == 'persistent' }}"
+        alias: Notify with PERSISTENT Notifications
+        sequence:
+          - 
