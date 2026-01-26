@@ -1,50 +1,26 @@
 
 
 
+## 1. Calculate the Absolute Humidity 📊
+
+This one is the most basic sensor. It simply calculates the absolute humidity based on Temperature (°C) and relative Humidity (%). 
+
+Can be used for statistics 📊 or as trigger for automation ⚙️. The Input values are also available as attributes:
 
 ```mermaid
-flowchart TD
-    subgraph 1
-    direction LR
+flowchart LR
     A@{ shape: brace-r, label: "Temperature (°C)<br>Humidity (%)" }
     B("Absolute Humidity (g/m³)")
     C@{ shape: text, label: "Input Sensor Values" }
     A -- Sensors --> B -. Attributes .- C
-    end
-
-    subgraph 2
-    direction LR
-    D@{ shape: brace-r, label: "Inside Temperature (°C)<br>Inside Humidity (%)
-    Outside Temperature (°C)<br>Outside Humidity (%)" }
-    E("Potential Humidity Improvement (%)")
-    F@{ shape: text, label: "Input Sensor Values in/out
-    Absolute humidity in/out
-    Potential humidity (%)" }
-    D -- Sensors --> E -. Attributes .- F
-    end
-
-    subgraph 3
-    direction LR
-    G@{ shape: brace-r, label: "Inside Temperature (°C)<br>Inside Humidity (%)
-    Outside Temperature (°C)<br>Outside Humidity (%)" }
-    H@{ shape: brace-r, label: "Minimum Improvement (%)
-    Humidity Threshold (%)" }
-    I("Ventilation Recommendation (yes/no)")
-    J@{ shape: text, label: "Input Sensor Values in/out
-    Absolute humidity in/out
-    Potential humidity (%)
-    Potential improvement (%)
-    Above indoor threshold?
-    Above min improvement?" }
-    G -- Sensors --> I -. Attributes .- J
-    H -- User Input --> I
-    end
-    
-    1 --- 2 --- 3
 ```
 
+<details><summary><strong>Setup</strong></summary>
 
-## 1. Calculate the Absolute Humidity
+To set up this sensor, you need to do two things:
+1. Import this Blueprint  
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FFlo-R1der%2FMy_Smart-Home_stuff%2Fblob%2Fmain%2Fventilation-recomentation%2Fabsolute-humidity.yaml)
+2. Add one ore multiple sensors to your `configuration.yaml` (or `template.yaml`):
 
 ```yaml
 template:
@@ -56,7 +32,13 @@ template:
   name: Absolute Humidity #outside-or-room-name
   unique_id: absolute_humidity_ #outside-or-room-name
 ```
+Obviously you need to fill the correct entity-id for each input sensor. You can set up one sensor for each area you want to track (outside, living room, bedroom, bath, ...).
 
+<img src="absolute-huminity_example.jpg" width=400px/>
+
+</details>
+
+---
 
 ## 2. Calculate the Potential Humidity Improvement
 
