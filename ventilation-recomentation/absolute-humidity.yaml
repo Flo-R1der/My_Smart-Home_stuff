@@ -39,5 +39,6 @@ sensor:
   attributes:
     sensor_temperature: "{{ states(temperature) }} °C"
     sensor_humidity: "{{ states(relative_humidity) }} %"
+    provided_by: "https://github.com/Flo-R1der/"
   unit_of_measurement: "g/m³"
   icon: mdi:water
