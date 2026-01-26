@@ -90,7 +90,35 @@ Obviously you need to fill the correct entity-id for each input sensor. You can 
 
 ---
 
-## 3. Ventilation Recommendation
+## 3. Ventilation Recommendation 🚦
+
+This sensor compares the inside and outside Temperature (°C) and relative Humidity (%) to calculate the theoretical improvement and directly give an advice if ventilation is recommended or not.
+
+Can be used as trigger for automation ⚙️ or as an traffic light system 🚦 to inform users via UI or any external lights. The Input values are also available as attributes:
+
+```mermaid
+flowchart LR
+    G@{ shape: brace-r, label: "Inside Temperature (°C)<br>Inside Humidity (%)
+    Outside Temperature (°C)<br>Outside Humidity (%)" }
+    H@{ shape: brace-r, label: "Minimum Improvement (%)
+    Humidity Threshold (%)" }
+    I("Ventilation Recommendation (yes/no)")
+    J@{ shape: text, label: "Input Sensor Values in/out
+    Absolute humidity in/out
+    Potential humidity (%)
+    Potential improvement (%)
+    Above indoor threshold?
+    Above min improvement?" }
+    G -- Sensors --> I -. Attributes .- J
+    H -- User Input --> I
+```
+
+<details><summary>Setup</summary>
+
+To set up this sensor, you need to do two things:
+1. Import this Blueprint  
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FFlo-R1der%2FMy_Smart-Home_stuff%2Fblob%2Fmain%2Fventilation-recomentation%2Fventilation-recommendation.yaml)
+2. Add one ore multiple sensors to your `configuration.yaml` (or `template.yaml`):
 
 ```yaml
 template:
@@ -106,3 +134,9 @@ template:
     name: Ventilation Recommendation #room-name
     unique_id: ventilation_recommendation_ #room-name
 ```
+Obviously you need to fill the correct entity-id for each input sensor. Adjust the values for `minimum_improvement_value` and `threshold_room_humidity` if you like. You can set up one sensor for each room you want to track (living room, bedroom, bath, ...).
+
+<img src="ventilation-recommendation_example.jpg" width=400px/>
+
+</details>
+
