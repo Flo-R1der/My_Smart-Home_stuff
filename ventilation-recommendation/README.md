@@ -1,7 +1,17 @@
+# Ventilation Recommendation
 
+**When ventilation actually makes sense?**  
+This project provides a set of **Home Assistant [template](https://www.home-assistant.io/integrations/template/#using-blueprints) blueprints** that help you decide when ventilation actually makes sense.  
+- Calculate absolute humidity 💧 based on existing sensor values
+- Estimate the potential humidity improvement 📈
+- Get clear ventilation recommendation 🚦
+- Reduce indoor humidity effectively 📉
+- Avoid unnecessary heat loss ❄️
+- For data-driven automations for smart and efficient airing decisions 🔀
 
+---
 
-## 1. Calculate the Absolute Humidity 📊
+## 1. Calculate the Absolute Humidity 💧
 
 This one is the most basic sensor. It simply calculates the absolute humidity based on Temperature (°C) and relative Humidity (%). 
 
@@ -40,7 +50,7 @@ Obviously you need to fill the correct entity-id for each input sensor. You can 
 
 ---
 
-## 2. Calculate the Potential Humidity Improvement 📉
+## 2. Calculate the Potential Humidity Improvement 📈
 
 This sensor compares the inside and outside Temperature (°C) and relative Humidity (%) to calculate the theoretical improvement.
 
