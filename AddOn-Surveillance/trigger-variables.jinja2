@@ -29,40 +29,36 @@ manual_list: {{ manual_list }}
    |select('is_state_attr', 'device_class', 'running')|list -%}
 all_running_sensors: {{ all_running_sensors }}
 
-
-{% set not_running = namespace(entities=[], names=[]) -%}
+{% set not_running = namespace(entities=[]) -%}
 {% for sensor in all_running_sensors -%}
   {% if is_state(sensor, 'off') -%}
     {% set not_running.entities = not_running.entities + [sensor] -%}
-    {% set not_running.names = not_running.names + [device_name(sensor)] -%}
   {% endif -%}
 {% endfor -%}
-not_running: {{ not_running }}
+not_running: {{ not_running.entities }}
 
-
-{% set trigger_list = namespace(entities=[], names=[]) -%}
-
+{% set trigger_list = namespace(entities=[]) -%}
 {% if surveillance_mode == "all" -%}
-  {% set trigger_list = not_running -%}
-
+  {% set trigger_list.entities = not_running.entities|list -%}
 {% elif surveillance_mode == "exclude" -%}
-  {% for sensor in not_running.entities -%}
+  {% for sensor in not_running.entities|list -%}
     {% if sensor not in excluded_entities -%}
       {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
-      {% set trigger_list.names = trigger_list.names + [device_name(sensor)] -%}
     {% endif -%}
   {% endfor -%}
-
 {% elif surveillance_mode == "manual" -%}
-  {% for sensor in not_running.entities -%}
-    {% if sensor in manual_list -%}
+  {% for sensor in not_running.entities|list -%}
+    {% if sensor in manual_selection -%}
       {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
-      {% set trigger_list.names = trigger_list.names + [device_name(sensor)] -%}
     {% endif -%}
   {% endfor -%}
 {% endif -%}
-trigger_list: {{ trigger_list }}
-
-
+trigger_list: {{ trigger_list.entities }}
 
 {{ trigger_list.entities|count > 0 }}
+
+
+notification_message:
+{% for sensor in trigger_list.entities|list -%} 
+• {{ device_name(sensor) }} {% if not loop.last %}<br>{% endif %}
+{% endfor -%}
