@@ -21,11 +21,11 @@ blueprint:
       selector:
         select:
           options:
-            - label: Observe all
+            - label: Observe all AddOns
               value: all
-            - label: Exclude Selected
+            - label: Exclude Selected AddOns
               value: exclude
-            - label: Manual Selection
+            - label: Manual Selected AddOns
               value: manual
           multiple: false
     exclude_list:
@@ -39,7 +39,7 @@ blueprint:
           multiple: true
     manual_selection:
       name: Manual Selection
-      description: '**Only applicable if the "Manual Selection"-Mode is chosen**'
+      description: '**Only applicable if the "Manual Selected"-Mode is chosen**'
       default: []
       selector:
         entity:
@@ -71,7 +71,30 @@ blueprint:
     pre_actions:
       name: PRE Actions
       description: >-
-        Optional actions to run BEFORE the Notification will be sent. Can be empty.
+        **Optional** actions to run BEFORE the Notification will be sent. Can be empty.
+        
+        
+        Available Variables:
+        
+        - `surveillance_mode` your mode selection above (`all`, `exclude`, `manual`)
+        
+        - `all_running_sensors` all AddOn sensors with `device_class: running`
+        
+        - `not_running` those sensors, who are in the `off` state
+        
+        - `exclude_list` your selection from above
+        
+        - `manual_selection` your selection from above
+        
+        - `trigger_list` evaluated, based on your selection above
+        
+        - `notification_mode` the mode your selection below (`all`, `selected`, `persistent`, `none`)
+
+        - `selected_devices` the Device-ID of your selection below
+        
+        - `notification_title` the Title you can specify below
+        
+        - `notification_message` a bullet point list of the AddOns not started
       default: []
       selector:
         action:
@@ -87,6 +110,10 @@ blueprint:
         **Persistent Notification** will provide a notification in the Home Assistant 
         Side-Bar/Menue. This requires the user to actively look into the App/Web-UI. 
         Will always be provided to all users.
+        
+        
+        **No Notification** can be helpful, if you want to implement your own logic
+        and just want to use the trigger from this blueprint.
       default: null
       selector:
         select:
@@ -102,6 +129,9 @@ blueprint:
           multiple: false
     selected_devices:
       name: Selected Devices
+      description: >-
+        **Only relevant, if you have the "Push to Selected Devices" option chosen.** 
+        Otherwise this selection will not be considered!
       default: []
       selector:
         device:
@@ -119,7 +149,10 @@ blueprint:
     post_actions:
       name: POST Actions
       description: >-
-        Optional actions to run AFTER the Notification was sent. Can be empty.
+        **Optional** actions to run AFTER the Notification was sent. Can be empty.
+        
+        
+        Available Variables: see PRE Actions Selector above.
       default: []
       selector:
         action:
