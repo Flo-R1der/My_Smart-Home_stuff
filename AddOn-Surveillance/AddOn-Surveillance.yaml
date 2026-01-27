@@ -226,7 +226,7 @@ actions:
       trigger_list: |-
         {% set trigger_list = namespace(entities=[]) -%}
         {% if surveillance_mode == "all" -%}
-          {% set trigger_list.entites = not_running|list -%}
+          {% set trigger_list.entities = not_running|list -%}
         {% elif surveillance_mode == "exclude" -%}
           {% for sensor in not_running|list -%}
             {% if sensor not in excluded_entities -%}
@@ -243,7 +243,7 @@ actions:
         {{ trigger_list.entities }}
       notification_message: >-
         {% for sensor in trigger_list|list -%} 
-        • {{ device_name(sensor) }}
+        • {{ device_name(sensor) }} {% if not loop.last %}<br>{% endif %}
         {% endfor -%}
 
   - alias: PRE Actions
@@ -300,4 +300,4 @@ actions:
               notification_id: addon_surveillance
               message: |
                 ## {{ notification_title }}
-                {{ notification_message | replace('•', '-') }}
+                {{ notification_message | replace('•', '-') | replace('<br>', '\n') }}
