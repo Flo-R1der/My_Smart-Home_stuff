@@ -148,5 +148,13 @@ Obviously you need to fill the correct entity-id for each input sensor. Adjust t
 
 <img src="ventilation-recommendation_example.jpg" width=400px/>
 
+> **Tip**:  
+> Instead of the fixed numbers in yaml for `minimum_improvement_value` and `threshold_room_humidity`, you can also use `input_number` helpers for more dynamic adjustment of those two input values.
+> 
+> ```yaml
+> minimum_improvement_value: "{{ states('input_number.min_ventilation_improvement')|int }}"
+> threshold_room_humidity: "{{ states('input_number.humidity_threshold')|int }}"
+> ```
+
 </details>
 
