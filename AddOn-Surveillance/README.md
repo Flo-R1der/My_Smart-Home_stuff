@@ -18,7 +18,10 @@ This Home Assistant automation blueprint is designed to monitor the *running sta
 > This blueprint **does NOT check Add-on health**.  
 > If an Add-on is technically running but internally broken, this automation can **not** detect the failure. It strictly evaluates the `device_class: running` sensor state.
 
-\\\\ FIXME: Screenshot
+| Mobile Notification | Persistent Notification |
+| ------------------- | ----------------------- |
+| <img src= "mobile-notification.jpg" width="330px"> | <img src= "persistent-notification.png" width="330px"> |
+
 
 
 ## 📥 Installation
