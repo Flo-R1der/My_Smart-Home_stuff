@@ -46,6 +46,8 @@ Obviously you need to fill the correct entity-id for each input sensor. You can 
 
 <img src="absolute-huminity_example.png" width=465/>
 
+> **Note**: You can see the cocking for lunch and dinner, as well as the ventilation having an effect on both: absolute humidity and temperature. Also the absolute humidity outside is always lower then inside. This sensor makes both values comparable!
+
 </details>
 
 ---
@@ -96,6 +98,8 @@ Obviously you need to fill the correct entity-id for each input sensor. You can 
 
 <img src="potential-improvement_example.png" width=465/>
 
+> **NOTE**: When ventilation takes place, the potential improvement drops and rises again afterwards.
+
 </details>
 
 ---
@@ -123,7 +127,7 @@ flowchart LR
     H -- User Input --> I
 ```
 
-<details><summary>Setup</summary>
+<details><summary><strong>Setup</strong></summary>
 
 To set up this sensor, you need to do two things:
 1. Import this Blueprint  
@@ -147,6 +151,8 @@ template:
 Obviously you need to fill the correct entity-id for each input sensor. Adjust the values for `minimum_improvement_value` and `threshold_room_humidity` if you like. You can set up one sensor for each room you want to track (living room, bedroom, bath, ...).
 
 <img src="ventilation-recommendation_example.png" width=465/>
+
+<br>
 
 > **Tip**:  
 > Instead of the fixed numbers in yaml for `minimum_improvement_value` and `threshold_room_humidity`, you can also use `input_number` helpers for more dynamic adjustment of those two input values.
