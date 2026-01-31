@@ -44,7 +44,7 @@ template:
 ```
 Obviously you need to fill the correct entity-id for each input sensor. You can set up one sensor for each area you want to track (outside, living room, bedroom, bath, ...).
 
-<img src="absolute-huminity_example.jpg" width=400px/>
+<img src="absolute-huminity_example.png" width=465/>
 
 </details>
 
@@ -94,7 +94,7 @@ template:
 ```
 Obviously you need to fill the correct entity-id for each input sensor. You can set up one sensor for each room you want to track (living room, bedroom, bath, ...).
 
-<img src="potential-improvement_example.jpg" width=400px/>
+<img src="potential-improvement_example.png" width=465/>
 
 </details>
 
@@ -146,7 +146,7 @@ template:
 ```
 Obviously you need to fill the correct entity-id for each input sensor. Adjust the values for `minimum_improvement_value` and `threshold_room_humidity` if you like. You can set up one sensor for each room you want to track (living room, bedroom, bath, ...).
 
-<img src="ventilation-recommendation_example.jpg" width=400px/>
+<img src="ventilation-recommendation_example.png" width=465/>
 
 > **Tip**:  
 > Instead of the fixed numbers in yaml for `minimum_improvement_value` and `threshold_room_humidity`, you can also use `input_number` helpers for more dynamic adjustment of those two input values.
