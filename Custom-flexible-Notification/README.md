@@ -59,4 +59,5 @@ Critical Notifications can be detected by a couple of identifies. For details ab
 ---
 
 ## ❤️ Like My Work?
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)  
+Part [My Smart Home Stuff](https://github.com/Flo-R1der/My_Smart-Home_stuff/).

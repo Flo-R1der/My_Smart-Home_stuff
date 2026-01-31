@@ -1,0 +1,44 @@
+blueprint:
+  name: Absolute Humidity
+  description: >-
+    A sensor which calculates the absolute humidity based on: 
+    - Temperature (°C)
+    - Relative Humidity (%)
+
+    This can be used to display or you simply compare inside and outside humidity
+    for ventilation recommendation.
+  domain: template
+  author: Flo-R1der (https://github.com/Flo-R1der)
+  input:
+    temperature:
+      name: Temperature Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    relative_humidity:
+      name: Humidity Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+
+variables:
+  temperature: !input temperature
+  relative_humidity: !input relative_humidity
+
+sensor:
+  availability: >-
+    {{ states(temperature) not in ['unknown', 'unavailable'] 
+    and states(relative_humidity) not in ['unknown', 'unavailable'] }}
+  state: >-
+    {% set RH = states(relative_humidity)|float %}
+    {% set T = states(temperature)|float %}
+    {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) | round(2) %}
+    {{ AH }}
+  attributes:
+    sensor_temperature: "{{ states(temperature) }} °C"
+    sensor_humidity: "{{ states(relative_humidity) }} %"
+    provided_by: "https://github.com/Flo-R1der/"
+  unit_of_measurement: "g/m³"
+  icon: mdi:water

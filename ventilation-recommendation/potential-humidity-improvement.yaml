@@ -1,0 +1,84 @@
+blueprint:
+  name: Potential Humidity Improvement
+  description: >-
+    Creates a sensor which calculates the theoretic room humidity improvement based on the 
+    - outside temperature (°C)
+    - outside humidity (%)
+    - inside temperature (°C)
+    - inside humidity (%)
+
+    This can be used to display a gauge, how recommended ventilation is. Or you simply set up 
+    your own automation based on a sufficient threshold.
+  domain: template
+  author: Flo-R1der (https://github.com/Flo-R1der)
+  input:
+    outside_temperature:
+      name: Outside Temperature Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    outside_humidity:
+      name: Outside Humidity Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+    inside_temperature:
+      name: Inside Temperature Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    inside_humidity:
+      name: Inside Humidity Sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+
+variables:
+  outside_temperature: !input outside_temperature
+  outside_humidity: !input outside_humidity
+  inside_temperature: !input inside_temperature
+  inside_humidity: !input inside_humidity
+
+sensor:
+  availability: >-
+    {{ states(outside_temperature) not in ['unknown', 'unavailable'] 
+    and states(outside_humidity) not in ['unknown', 'unavailable'] 
+    and states(inside_temperature) not in ['unknown', 'unavailable'] 
+    and states(inside_humidity) not in ['unknown', 'unavailable'] }}
+  state: >-
+    {% set RH = states(outside_humidity)|float %}
+    {% set T = states(outside_temperature)|float %}
+    {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) %}
+    {% set T = states(inside_temperature)|float %}
+    {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) %}
+    {% set DIFF = ( RH - states(inside_humidity)|float ) | round(1) %}
+    {{ DIFF * -1 }}
+  attributes:
+    outside_temperature: "{{ states(outside_temperature) }} °C"
+    outside_humidity: "{{ states(outside_humidity) }} %"
+    inside_temperature: "{{ states(inside_temperature) }} °C"
+    inside_humidity: "{{ states(inside_humidity) }} %"
+    absolute_humidity_outside: >-
+      {% set RH = states(outside_humidity)|float %}
+      {% set T = states(outside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) | round(2) %}
+      {{ AH }} g/m³
+    absolute_humidity_inside: >-
+      {% set RH = states(inside_humidity)|float %}
+      {% set T = states(inside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) | round(2) %}
+      {{ AH }} g/m³
+    potential_humidity: >-
+      {% set RH = states(outside_humidity)|float %}
+      {% set T = states(outside_temperature)|float %}
+      {% set AH = ( 6.112 * e**( (17.67 * T) / (T + 243.5)) * RH * 2.1674 / (273.15 + T) ) %}
+      {% set T = states(inside_temperature)|float %}
+      {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) | round(1) %}
+      {{ RH }} %
+    provided_by: "https://github.com/Flo-R1der/"
+  unit_of_measurement: "%"
+  icon: mdi:water-percent

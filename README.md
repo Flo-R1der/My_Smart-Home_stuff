@@ -16,6 +16,13 @@
    - Supports predefined or custom actions for notifications, second alerts, and clear notification  
 
 ---
+### 🚦 [Ventilation Recommendation](ventilation-recommendation)
+Provides a set of **Home Assistant [template](https://www.home-assistant.io/integrations/template/#using-blueprints) blueprints** to: 
+   - Calculate **absolute humidity** 💧 based on existing sensor values
+   - Estimate the **potential humidity improvement** 📈
+   - Get **clear ventilation recommendation** 🚦
+
+---
 ### 🚨 [NINA Warnings](NINA-Warnmeldungen)
    For sensors from the [NINA Integration](https://www.home-assistant.io/integrations/nina/): 
    - A Home Assistant automation blueprint, to **create mobile push-notifications**, based on the severity of the Warning.
