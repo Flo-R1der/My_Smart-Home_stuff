@@ -10,6 +10,12 @@
    - an input-switch to turn off notifications temporary
 
 ---
+### 🚨 [AddOn Surveillance](AddOn-Surveillance)
+   A Home Assistant automation blueprint to detect Add-ons that are **not running** ✅/⛔
+   - Detects the required sensors from the supervisor automatically
+   - Can send various notifications and tell which AddOn is affected
+
+---
 ### 🚨 [NINA Warnings](NINA-Warnmeldungen)
    For sensors from the [NINA Integration](https://www.home-assistant.io/integrations/nina/): 
    - A Home Assistant automation blueprint, to **create mobile push-notifications**, based on the severity of the Warning.

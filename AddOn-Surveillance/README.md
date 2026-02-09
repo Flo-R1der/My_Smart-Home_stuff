@@ -1,10 +1,10 @@
-# AddOn Surveillance – Home Assistant Blueprint
+# AddOn Surveillance
 
 This Home Assistant automation blueprint is designed to monitor the *running state* of Home Assistant Add-ons. Its primary purpose is to detect Add-ons that are **not started (state = `off`)** and notify you after a configurable delay.
 
 ## ✨ Features
-- Monitor Home Assistant Add-ons 🧩
-- Detect Add-ons that are **not running** ✅/⛔?
+- Detects the required sensors from the supervisor automatically 🔎
+- Observes Add-ons that are **not running** ✅/⛔?
 - Send notifications using different methods:
   - Push notification to **all mobile devices** 📣
   - Push notification to **selected mobile devices** 📱
