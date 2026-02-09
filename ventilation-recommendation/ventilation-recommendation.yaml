@@ -114,6 +114,7 @@ binary_sensor:
       {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) %}
       {% set DIFF = ( RH - states(inside_humidity)|float ) %}
       {{ DIFF*-1 >= minimum_improvement_value|float }}
+    provided_by: "https://github.com/Flo-R1der/"
   icon: >-
     {% if is_state(this.entity_id, 'on') %}
       mdi:window-open

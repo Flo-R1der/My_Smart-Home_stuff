@@ -79,5 +79,6 @@ sensor:
       {% set T = states(inside_temperature)|float %}
       {% set RH = ( AH * (273.15 + T) / (6.112 * e**((17.67 * T) / (T + 243.5)) * 2.1674) ) | round(1) %}
       {{ RH }} %
+    provided_by: "https://github.com/Flo-R1der/"
   unit_of_measurement: "%"
   icon: mdi:water-percent
