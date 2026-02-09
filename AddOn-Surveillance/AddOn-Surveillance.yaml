@@ -1,0 +1,303 @@
+blueprint:
+  name: AddOn Surveillance
+  description: >-
+    Observe if certain Addons are started and provide notifications if not.
+    
+    
+    **IMPORTANT**: This Automation can not detect, weather an AddOn is healthy or not!<br>
+    So it might happen, that the Addon has an internal failure, but is running = no report!
+    
+    
+    **Like My Work?** <br>
+    [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
+  domain: automation
+  author: Flo-R1der (https://github.com/Flo-R1der)
+
+
+  input:
+    surveillance_mode:
+      name: "Surveillance Mode"
+      default: exclude
+      selector:
+        select:
+          options:
+            - label: Observe all AddOns
+              value: all
+            - label: Exclude Selected AddOns
+              value: exclude
+            - label: Manual Selected AddOns
+              value: manual
+          multiple: false
+    exclude_list:
+      name: Exclude Selected
+      description: '**Only applicable if the "Exclude Selected"-Mode is chosen**'
+      default: []
+      selector:
+        entity:
+          integration: hassio
+          device_class: running
+          multiple: true
+    manual_selection:
+      name: Manual Selection
+      description: '**Only applicable if the "Manual Selected"-Mode is chosen**'
+      default: []
+      selector:
+        entity:
+          integration: hassio
+          device_class: running
+          multiple: true
+    waiting_minutes:
+      name: Trigger Waiting Time
+      description: >-
+        Delay, before this Automation will be triggered<br>
+        **NOTE**: On Startup of Home Assistant it may take some time to detect the "running" state.
+      default: 7
+      selector:
+        number:
+          min: 0
+          max: 60
+          step: 1
+          unit_of_measurement: min
+          mode: slider
+
+    custom_conditions:
+      name: Custom conditions before taking action
+      description: >-
+        Optional conditions to check, before the automation should proceed. Can be empty.
+      default: []
+      selector:
+        condition:
+
+    pre_actions:
+      name: PRE Actions
+      description: >-
+        **Optional** actions to run BEFORE the Notification will be sent. Can be empty.
+        
+        
+        Available Variables:
+        
+        - `surveillance_mode` your mode selection above (`all`, `exclude`, `manual`)
+        
+        - `all_running_sensors` all AddOn sensors with `device_class: running`
+        
+        - `not_running` those sensors, who are in the `off` state
+        
+        - `exclude_list` your selection from above
+        
+        - `manual_selection` your selection from above
+        
+        - `trigger_list` evaluated, based on your selection above
+        
+        - `notification_mode` the mode your selection below (`all`, `selected`, `persistent`, `none`)
+
+        - `selected_devices` the Device-ID of your selection below
+        
+        - `notification_title` the Title you can specify below
+        
+        - `notification_message` a bullet point list of the AddOns not started
+      default: []
+      selector:
+        action:
+    notification_mode:
+      name: "Notification Mode"
+      description: >-
+        **Push to all Devices** uses the `notify.notify`-Service to inform all mobile devices
+        
+        
+        **Push to Selected Devices** requires your selection below
+        
+        
+        **Persistent Notification** will provide a notification in the Home Assistant 
+        Side-Bar/Menue. This requires the user to actively look into the App/Web-UI. 
+        Will always be provided to all users.
+        
+        
+        **No Notification** can be helpful, if you want to implement your own logic
+        and just want to use the trigger from this blueprint.
+      default: null
+      selector:
+        select:
+          options:
+            - label: Push to all Devices
+              value: all
+            - label: Push to Selected Devices
+              value: selected
+            - label: Persistent Notification
+              value: persistent
+            - label: No Notification
+              value: none
+          multiple: false
+    selected_devices:
+      name: Selected Devices
+      description: >-
+        **Only relevant, if you have the "Push to Selected Devices" option chosen.** 
+        Otherwise this selection will not be considered!
+      default: []
+      selector:
+        device:
+          integration: mobile_app
+          multiple: true
+    notification_title:
+      name: Notification Title
+      description: >-
+        Here, you can specify the Title of the Notification.<br>
+        The Message will contain the list of not started AddOns.
+      default: "⚠️ AddOn not started"
+      selector:
+        text:
+
+    post_actions:
+      name: POST Actions
+      description: >-
+        **Optional** actions to run AFTER the Notification was sent. Can be empty.
+        
+        
+        Available Variables: see PRE Actions Selector above.
+      default: []
+      selector:
+        action:
+
+
+trigger_variables:
+  surveillance_mode: !input surveillance_mode
+  excluded_entities: !input exclude_list
+  manual_selection: !input manual_selection
+
+triggers:
+  - trigger: template
+    value_template: |-
+      {% set all_running_sensors = integration_entities('hassio')
+        | select('is_state_attr', 'device_class', 'running') | list %}
+
+      {% set not_running = namespace(entities=[]) -%}
+      {% for sensor in all_running_sensors -%}
+        {% if is_state(sensor, 'off') -%}
+          {% set not_running.entities = not_running.entities + [sensor] -%}
+        {% endif -%}
+      {% endfor -%}
+
+      {% set trigger_list = namespace(entities=[]) -%}
+      {% if surveillance_mode == "all" -%}
+        {% set trigger_list.entities = not_running.entities -%}
+      {% elif surveillance_mode == "exclude" -%}
+        {% for sensor in not_running.entities -%}
+          {% if sensor not in excluded_entities -%}
+            {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+          {% endif -%}
+        {% endfor -%}
+      {% elif surveillance_mode == "manual" -%}
+        {% for sensor in not_running.entities -%}
+          {% if sensor in manual_selection -%}
+            {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+          {% endif -%}
+        {% endfor -%}
+      {% endif -%}
+
+      {{ trigger_list.entities|count > 0 }}
+    for:
+      hours: 0
+      minutes: !input waiting_minutes
+      seconds: 0
+
+
+variables:
+  notification_mode: !input notification_mode
+  selected_devices: !input selected_devices
+  notification_title: !input notification_title
+
+
+conditions:
+  !input custom_conditions
+
+
+actions:
+  - variables:
+      all_running_sensors: >-
+        {{ integration_entities('hassio') | select('is_state_attr',
+        'device_class', 'running') | list }}
+      not_running: >-
+        {% set not_running = namespace(entities=[]) -%}
+        {% for sensor in all_running_sensors -%}
+          {% if is_state(sensor, 'off') -%}
+            {% set not_running.entities = not_running.entities + [sensor] -%}
+          {% endif -%}
+        {% endfor -%}
+        {{ not_running.entities }}
+      trigger_list: |-
+        {% set trigger_list = namespace(entities=[]) -%}
+        {% if surveillance_mode == "all" -%}
+          {% set trigger_list.entities = not_running|list -%}
+        {% elif surveillance_mode == "exclude" -%}
+          {% for sensor in not_running|list -%}
+            {% if sensor not in excluded_entities -%}
+              {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+            {% endif -%}
+          {% endfor -%}
+        {% elif surveillance_mode == "manual" -%}
+          {% for sensor in not_running|list -%}
+            {% if sensor in manual_selection -%}
+              {% set trigger_list.entities = trigger_list.entities + [sensor] -%}
+            {% endif -%}
+          {% endfor -%}
+        {% endif -%}
+        {{ trigger_list.entities }}
+      notification_message: >-
+        {% for sensor in trigger_list|list -%} 
+        • {{ device_name(sensor) }} {% if not loop.last %}<br>{% endif %}
+        {% endfor -%}
+
+  - alias: PRE Actions
+    sequence:
+      !input pre_actions
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ notification_mode == 'all' }}"
+        alias: Notify ALL Mobile Devices
+        sequence:
+          - action: notify.notify
+            data:
+              message: "{{ notification_message }}"
+              title: "{{ notification_title }}"
+              data:
+                tag: addon_surveillance
+                channel: Alarm
+                sticky: true
+                clickaction: /hassio/dashboard
+                notification_icon: mdi:alert-decagram
+
+      - conditions:
+          - condition: template
+            value_template: "{{ notification_mode == 'selected' }}"
+        alias: Notify SELECTED Mobile Devices
+        sequence:
+          - repeat:
+              for_each: "{{ selected_devices }}"
+              sequence:
+                - variables:
+                    notify_service: >-
+                      {% set notify_service = 'notify.mobile_app_' ~ device_attr(repeat.item, 'name') 
+                        | replace(' ', '_') | replace('-', '_') %}
+                      {{ notify_service }}
+                - action: "{{ notify_service }}"
+                  data:
+                    message: "{{ notification_message }}"
+                    title: "{{ notification_title }}"
+                    data:
+                      tag: addon_surveillance
+                      channel: Alarm
+                      sticky: true
+                      clickaction: /hassio/dashboard
+                      notification_icon: mdi:alert-decagram
+      - conditions:
+          - condition: template
+            value_template: "{{ notification_mode == 'persistent' }}"
+        alias: Notify with PERSISTENT Notifications
+        sequence:
+          - action: persistent_notification.create
+            data:
+              notification_id: addon_surveillance
+              message: |
+                ## {{ notification_title }}
+                {{ notification_message | replace('•', '-') | replace('<br>', '\n') }}

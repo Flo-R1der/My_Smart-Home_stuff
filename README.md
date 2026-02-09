@@ -6,14 +6,20 @@
 ---
 ### 🔔 [Custom flexible Notification](Custom-flexible-Notification)
    A Home Assistant script blueprint to **manage [Mobile Notifications](https://companion.home-assistant.io/docs/notifications/notifications-basic)** for the Companion App in order to distribute your push-notifications, based on:
-   - zones the selected device is in 
-   - an input-switch to turn off notifications temporary
+   - zones the selected device is in 📍
+   - an input-switch to turn off notifications temporary 🔕
+
+---
+### ⚠️ [AddOn Surveillance](AddOn-Surveillance)
+   A Home Assistant automation blueprint to detect Add-ons that are **not running** ✅/⛔
+   - Detects the required sensors from the supervisor automatically 🔎
+   - Can send various notifications and tell which AddOn is affected 📢
 
 ---
 ### 🪟 [Open Window Notifications](window-notifications)
    A Home Assistant automation blueprint to **notify you when a window or door is left open too long**
-   - Calculates a **dynamic waiting time** based on the **indoor-outdoor temperature difference**.
-   - Supports predefined or custom actions for notifications, second alerts, and clear notification  
+   - Calculates a **dynamic waiting time** based on the **indoor-outdoor temperature difference** ⏱️
+   - Supports predefined or custom actions for notifications, second alerts, and clear notification 📢
 
 ---
 ### 🚦 [Ventilation Recommendation](ventilation-recommendation)
@@ -25,14 +31,14 @@ Provides a set of **Home Assistant [template](https://www.home-assistant.io/inte
 ---
 ### 🚨 [NINA Warnings](NINA-Warnmeldungen)
    For sensors from the [NINA Integration](https://www.home-assistant.io/integrations/nina/): 
-   - A Home Assistant automation blueprint, to **create mobile push-notifications**, based on the severity of the Warning.
-   - A markdown-card to provide the warnings via the **Home Assistant Lovelace UI**.
+   - A Home Assistant automation blueprint, to **create mobile push-notifications**, based on the severity of the Warning 🔊
+   - A markdown-card to provide the warnings via the **Home Assistant Lovelace UI** 👀
 
 ---
 ### 🌅 [Wake-up Light](wake-up_light)
    A Home Assistant automation blueprint to control any (dimmable) light creating a **parabolic sunrise effect**.
-   - Highly customizable Trigger, Conditions and Actions
-   - Can start the sunrise effect and turn off the light via schedule or custom time
+   - Highly customizable Trigger, Conditions and Actions 🎛️
+   - Can start the sunrise effect and turn off the light via schedule or custom time 🔜
 
 ---
 ### 🎚️ [Müller Licht tint dim remote](muller-licht-tint-dim-remote)
