@@ -1,16 +1,32 @@
 blueprint:
   name: Muller Licht Remote 404049D
   description: >-
-    Control lights with a [Müller Licht 404049D](https://www.zigbee2mqtt.io/devices/404049D.html) 
-    dim remote control via [MQTT trigger](https://www.home-assistant.io/docs/automation/trigger/#mqtt-trigger) 
-    from **Zigbee2MQTT**.  <br>  
+    Control lights with a [Müller Licht 404049D](https://www.zigbee2mqtt.io/devices/404049D.html)
+    dim remote control via [MQTT trigger](https://www.home-assistant.io/docs/automation/trigger/#mqtt-trigger)
+    from **Zigbee2MQTT**.  <br>
 
-    Feel free to copy my blueprint and extend it or reach me out, if you found something that should be implemented.  
+
+    **Color temperature fix (2026-05)**: the previous revision used the legacy
+    `color_temp` (mireds) field, and forwarded the raw mireds payload to the
+    light without clamping. The 404049D wheel emits mireds in a wide range
+    (≈ 153–555, i.e. ≈ 1800K–6500K), which often falls outside the CCT range
+    of the target light (e.g. a tint bulb with 2700K–6500K). Out-of-range
+    values are silently ignored by most lights, giving the impression that
+    the white-temperature wheel "does nothing".
+
+    The current revision converts mireds → kelvin and **clamps** to the range
+    advertised by the reference light (`min_color_temp_kelvin` /
+    `max_color_temp_kelvin`), and uses the modern `color_temp_kelvin` field.
+    All `service:` keys have also been migrated to `action:` (HA 2024.8+).
+
+
+    Feel free to copy my blueprint and extend it or reach me out, if you found something that should be implemented.
+
 
     Credits to [thefamouspb](https://community.home-assistant.io/t/muller-licht-tint-remote/283190)
     who provided the basis for this blueprint.
-    
-    
+
+
     **Like My Work?** <br>
     [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I4160K4Y)
   domain: automation
@@ -20,10 +36,10 @@ blueprint:
       name: MQTT topic subscription
       description: >-
         - In Home Assistant go to **Devices & services** > [**MQTT**](/config/integrations/integration/mqtt)
-        > **xx devices** and view the info page of your **Tint dim remote control (404049D)**  
+        > **xx devices** and view the info page of your **Tint dim remote control (404049D)**
 
         - On the Device Info Page, go to the **Entities-Section** > **`sensor.<device_name>_action`**
-        > **Subscribed topics** > **copy the MQTT topic** which is typically `zigbee2mqtt/<device_name>`  
+        > **Subscribed topics** > **copy the MQTT topic** which is typically `zigbee2mqtt/<device_name>`
 
         - **Paste the MQTT topic here** (typically `zigbee2mqtt/<device_name>` or `zigbee2mqtt/<device_IEEE>`)
       selector:
@@ -35,16 +51,18 @@ blueprint:
       selector:
         target:
           entity:
-          - domain:
-            - light
+            - domain:
+                - light
     color_temp_ref:
       name: Color Temperature Reference
       description: >-
-        Select the light again, for proper Color Temperature setting
+        A single light used to read the supported CCT range
+        (`min_color_temp_kelvin` / `max_color_temp_kelvin`) for clamping
+        the white-temperature wheel. Typically the same as the target light.
       selector:
         entity:
           domain:
-          - light
+            - light
           multiple: false
     force_brightness:
       name: Force turn on brightness
@@ -87,7 +105,7 @@ blueprint:
           selector:
             entity:
               domain:
-              - scene
+                - scene
               multiple: false
         sunset_scene:
           name: Sunset Scene
@@ -96,7 +114,7 @@ blueprint:
           selector:
             entity:
               domain:
-              - scene
+                - scene
               multiple: false
         party_scene:
           name: Party Scene
@@ -105,7 +123,7 @@ blueprint:
           selector:
             entity:
               domain:
-              - scene
+                - scene
               multiple: false
         night_scene:
           name: Night Scene
@@ -114,7 +132,7 @@ blueprint:
           selector:
             entity:
               domain:
-              - scene
+                - scene
               multiple: false
         campfire_scene:
           name: Campfire Scene
@@ -123,7 +141,7 @@ blueprint:
           selector:
             entity:
               domain:
-              - scene
+                - scene
               multiple: false
         romantic_scene:
           name: Romantic Scene
@@ -132,7 +150,7 @@ blueprint:
           selector:
             entity:
               domain:
-              - scene
+                - scene
               multiple: false
 
 variables:
@@ -151,84 +169,104 @@ conditions:
       and trigger.payload_json.action != null }}
 
 actions:
-- variables:
-    event: "{{ trigger.payload_json.action }}"
-- choose:
-  - conditions:
-    - "{{ event == 'on' or event == 'off' }}"
-    sequence:
-    - if:
-      - "{{ force_brightness }}"
-      then:
-        - service: light.toggle
-          target: !input target_light
-          data:
-            brightness_pct: !input brightness
-      else:
-      - service: light.toggle
-        target: !input target_light
-  - conditions:
-    - "{{ event == 'brightness_step_up' }}"
-    sequence:
-    - service: light.turn_on
-      target: !input target_light
-      data:
-        brightness_step_pct: "{{ step_value }}"
-        transition: 1
-  - conditions:
-    - "{{ event == 'brightness_step_down' }}"
-    sequence:
-    - service: light.turn_on
-      target: !input target_light
-      data:
-        brightness_step_pct: -{{ step_value }}
-        transition: 1
-  - conditions:
-    - "{{ event == 'color_temperature_move' }}"
-    sequence:
-    - service: light.turn_on
-      target: !input target_light
-      data:
-        color_temp: "{{ trigger.payload_json.action_color_temperature }}"
-  - conditions:
-    - "{{ event == 'color_move' }}"
-    sequence:
-    - service: light.turn_on
-      target: !input target_light
-      data:
-        xy_color:
-        - "{{ trigger.payload_json.action_color.x }}"
-        - "{{ trigger.payload_json.action_color.y }}"
-  - conditions:
-    - "{{ event == 'scene_1' }}"
-    sequence:
-    - service: homeassistant.turn_on
-      entity_id: !input sunset_scene
-  - conditions:
-    - "{{ event == 'scene_2' }}"
-    sequence:
-    - service: homeassistant.turn_on
-      entity_id: !input party_scene
-  - conditions:
-    - "{{ event == 'scene_3' }}"
-    sequence:
-    - service: homeassistant.turn_on
-      entity_id: !input reading_scene
-  - conditions:
-    - "{{ event == 'scene_4' }}"
-    sequence:
-    - service: homeassistant.turn_on
-      entity_id: !input campfire_scene
-  - conditions:
-    - "{{ event == 'scene_5' }}"
-    sequence:
-    - service: homeassistant.turn_on
-      entity_id: !input romantic_scene
-  - conditions:
-    - "{{ event == 'scene_6' }}"
-    sequence:
-    - service: homeassistant.turn_on
-      entity_id: !input night_scene
+  - variables:
+      event: "{{ trigger.payload_json.action }}"
+  - choose:
+      - conditions:
+          - "{{ event == 'on' or event == 'off' }}"
+        sequence:
+          - if:
+              - "{{ force_brightness }}"
+            then:
+              - action: light.toggle
+                target: !input target_light
+                data:
+                  brightness_pct: !input brightness
+            else:
+              - action: light.toggle
+                target: !input target_light
+      - conditions:
+          - "{{ event == 'brightness_step_up' }}"
+        sequence:
+          - action: light.turn_on
+            target: !input target_light
+            data:
+              brightness_step_pct: "{{ step_value }}"
+              transition: 1
+      - conditions:
+          - "{{ event == 'brightness_step_down' }}"
+        sequence:
+          - action: light.turn_on
+            target: !input target_light
+            data:
+              brightness_step_pct: "{{ -1 * step_value }}"
+              transition: 1
+      - conditions:
+          - "{{ event == 'color_temperature_move' }}"
+        sequence:
+          - variables:
+              mireds: "{{ trigger.payload_json.action_color_temperature | int(0) }}"
+              target_kelvin: >-
+                {{ (1000000 // mireds) if mireds > 0 else 4000 }}
+              min_k: >-
+                {{ state_attr(color_temp_ref, 'min_color_temp_kelvin')
+                   | default(2700, true) | int }}
+              max_k: >-
+                {{ state_attr(color_temp_ref, 'max_color_temp_kelvin')
+                   | default(6500, true) | int }}
+              clamped_kelvin: >-
+                {{ [min_k, [max_k, target_kelvin] | min] | max }}
+          - action: light.turn_on
+            target: !input target_light
+            data:
+              color_temp_kelvin: "{{ clamped_kelvin }}"
+              transition: 1
+      - conditions:
+          - "{{ event == 'color_move' }}"
+        sequence:
+          - action: light.turn_on
+            target: !input target_light
+            data:
+              xy_color:
+                - "{{ trigger.payload_json.action_color.x }}"
+                - "{{ trigger.payload_json.action_color.y }}"
+              transition: 1
+      - conditions:
+          - "{{ event == 'scene_1' }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input sunset_scene
+      - conditions:
+          - "{{ event == 'scene_2' }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input party_scene
+      - conditions:
+          - "{{ event == 'scene_3' }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input reading_scene
+      - conditions:
+          - "{{ event == 'scene_4' }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input campfire_scene
+      - conditions:
+          - "{{ event == 'scene_5' }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input romantic_scene
+      - conditions:
+          - "{{ event == 'scene_6' }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input night_scene
 
 mode: parallel
 max_exceeded: silent
