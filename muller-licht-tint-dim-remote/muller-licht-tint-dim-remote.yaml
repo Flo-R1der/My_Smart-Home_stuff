@@ -6,20 +6,6 @@ blueprint:
     from **Zigbee2MQTT**.  <br>
 
 
-    **Color temperature fix (2026-05)**: the previous revision used the legacy
-    `color_temp` (mireds) field, and forwarded the raw mireds payload to the
-    light without clamping. The 404049D wheel emits mireds in a wide range
-    (≈ 153–555, i.e. ≈ 1800K–6500K), which often falls outside the CCT range
-    of the target light (e.g. a tint bulb with 2700K–6500K). Out-of-range
-    values are silently ignored by most lights, giving the impression that
-    the white-temperature wheel "does nothing".
-
-    The current revision converts mireds → kelvin and **clamps** to the range
-    advertised by the reference light (`min_color_temp_kelvin` /
-    `max_color_temp_kelvin`), and uses the modern `color_temp_kelvin` field.
-    All `service:` keys have also been migrated to `action:` (HA 2024.8+).
-
-
     Feel free to copy my blueprint and extend it or reach me out, if you found something that should be implemented.
 
 
@@ -192,7 +178,7 @@ actions:
             target: !input target_light
             data:
               brightness_step_pct: "{{ step_value }}"
-              transition: 1
+              transition: 0.3
       - conditions:
           - "{{ event == 'brightness_step_down' }}"
         sequence:
@@ -200,7 +186,7 @@ actions:
             target: !input target_light
             data:
               brightness_step_pct: "{{ -1 * step_value }}"
-              transition: 1
+              transition: 0.3
       - conditions:
           - "{{ event == 'color_temperature_move' }}"
         sequence:
@@ -220,7 +206,7 @@ actions:
             target: !input target_light
             data:
               color_temp_kelvin: "{{ clamped_kelvin }}"
-              transition: 1
+              transition: 0.3
       - conditions:
           - "{{ event == 'color_move' }}"
         sequence:
@@ -230,7 +216,7 @@ actions:
               xy_color:
                 - "{{ trigger.payload_json.action_color.x }}"
                 - "{{ trigger.payload_json.action_color.y }}"
-              transition: 1
+              transition: 0.3
       - conditions:
           - "{{ event == 'scene_1' }}"
         sequence:
