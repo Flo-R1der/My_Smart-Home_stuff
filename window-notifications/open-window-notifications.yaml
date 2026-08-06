@@ -61,6 +61,21 @@ blueprint:
                 domain: sensor
                 device_class: temperature
 
+        outside_temp_threshold:
+          name: Outside Temperature Threshold (°C)
+          description: >-
+            The temperature, under which the outside temperature must be. 
+            If the outside temperature is above this value, no notification will be provided. 
+            This avoids unnecessary warnings during warm periods.
+          selector:
+            number:
+              min: 10
+              max: 30
+              step: 0.5
+              unit_of_measurement: "°C"
+              mode: slider
+          default: 18
+
         min_temp_diff:
           name: Minimum temperature difference (°C)
           description: The dynamic calculation of the waiting time starts from this difference.
@@ -260,6 +275,7 @@ variables:
   inside_temp_value: "{{ states(inside_temp_entity) }}"
   outside_temp_entity: !input outside_temp_entity
   outside_temp_value: "{{ states(outside_temp_entity) }}"
+  outside_temp_threshold: !input outside_temp_threshold
   min_temp_diff: !input min_temp_diff
   max_warning_minutes: !input max_warning_minutes
   min_warning_minutes: !input min_warning_minutes
@@ -278,8 +294,12 @@ triggers:
     id: CLOSE
     enabled: !input close_actions_enabled
 
+conditions:
+  - condition: template
+    value_template: "{{ states(outside_temp_entity)|float < outside_temp_threshold }}"
+    alias: below outside_temp_threshold?
 
-action:
+actions:
   - choose:
       - conditions:
           - condition: trigger
