@@ -16,7 +16,7 @@
    - Can send various notifications and tell which AddOn is affected 📢
 
 ---
-### 🪟 [Open Window Notifications](window-notifications)
+### 💬 [Open Window Notifications](window-notifications)
    A Home Assistant automation blueprint to **notify you when a window or door is left open too long**
    - Calculates a **dynamic waiting time** based on the **indoor-outdoor temperature difference** ⏱️
    - Supports predefined or custom actions for notifications, second alerts, and clear notification 📢
@@ -27,6 +27,13 @@ Provides a set of **Home Assistant [template](https://www.home-assistant.io/inte
    - Calculate **absolute humidity** 💧 based on existing sensor values
    - Estimate the **potential humidity improvement** 📈
    - Get **clear ventilation recommendation** 🚦
+
+---
+### 🪟 [Automated Window Controller](https://github.com/Flo-R1der/ESPHome_window-opener)
+This **ESPHome** based project aims to automatically open and close a motorized window
+   - **Compares the absolute humidity** 💧 inside & outside, measured with temperature and humidity sensors
+   - **Displays 📟 the current Mode**: Humidity, Temperature, Scheduled, and Manual
+   - **Home Assistant Integration 🌈, or standalone 🔒** operation + configuration with a rotary knob supported
 
 ---
 ### 🚨 [NINA Warnings](NINA-Warnmeldungen)
