@@ -40,7 +40,9 @@ blueprint:
             entity:
               filter:
                 domain: binary_sensor
-                device_class: window
+                device_class:
+                  - window
+                  - door
               multiple: false
 
         inside_temp_entity:
