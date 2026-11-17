@@ -1,30 +1,40 @@
 # INFO: Diese Yaml ist kein komplettes Dashboard. 
 # Es enthält nur die Karten für die Markdown-Card "NINA Warnmeldungen"
-# REQUIREMENTS: auto-entities Karte muss installiert sein!
+# TODO: 'binary_sensor.nina_warnmeldungen' anlegen oder beide Vorkomnisse ersetzen!
 
-type: custom:auto-entities
-show_empty: false
-filter:
-  include:
-    - integration: nina
-      state: "on"
-  exclude:
-    - attributes:
-        headline: "*Vorwarnung*"
-card:
-  type: markdown
-  title: NINA Warnmeldungen
-  content: |-
-    {% for list in config.entities %}
-      {% if state_attr(list.entity, 'severity') == "Extreme" -%} <ha-alert alert-type="error"
-      {%- elif state_attr(list.entity, 'severity') == "Severe" -%} <ha-alert alert-type="warning"
-      {%- else %} <ha-alert alert-type="info" {% endif %}
-      title="{{ state_attr(list.entity, 'headline') }}">
-      {{- state_attr(list.entity, 'description') -}}
-      <br> <br> {% if state_attr(list.entity, 'recommended_actions') != "" %} **Empfohlene Aktionen:**
-      {{ state_attr(list.entity, 'recommended_actions') }} <br> <br> {% endif -%}
-      [Meldung ansehen (warnung.bund.de)](https://warnung.bund.de/meldungen/{{ state_attr(list.entity, 'id') }})
-      {% if state_attr(list.entity, 'expires') != "" -%}
-      Endet: {{ as_datetime(state_attr(list.entity, 'expires')).strftime('%d.%m.%Y - %H:%M') }}
-      {%- endif %} </ha-alert>
-    {% endfor %}
+type: markdown
+content: >
+  {% set sensors = expand('binary_sensor.nina_warnmeldungen')
+     | selectattr('state', 'eq', 'on')
+     | map(attribute="entity_id") 
+     | sort | list %}
+
+  {# old-style: binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_1
+     new-style: binary_sensor.meckenbeuren_bodenseekreis_baden_wurttemberg_warnung_1 #}
+  {% for sensor in sensors %}
+    {% set num = loop.index -%}
+    {% set base = sensor 
+       | replace('binary_sensor.', 'sensor.') 
+       | replace('.warning_','.') 
+       | replace('_warnung_', '_') 
+       | replace(num, '') -%}
+    {% set sender = [base, 'absender_', num]|join -%}
+    {% set region = [base, 'betroffene_regionen_', num]|join -%}
+    {% set severity = [base, 'schweregrad_', num]|join -%}
+    {% set headline = [base, 'uberschrift_', num]|join -%}
+    {% set web = [base, 'weitere_informationen_url_', num]|join -%}
+
+    {% if states(severity) == "Extreme" -%} <ha-alert alert-type="error"
+    {%- elif states(severity) == "Severe" -%} <ha-alert alert-type="warning"
+    {%- else %} <ha-alert alert-type="info" {% endif %}
+    title="{{ states(headline) }}">
+    **[Meldung ansehen (warnung.bund.de)](https://warnung.bund.de/meldungen/{{state_attr(sensor, 'id')}})**
+    Aussteller: [{{states(sender)}}]({{states(web)}})
+    </ha-alert>
+  {% endfor %}
+title: NINA Warnmeldungen
+visibility:
+  - condition: state
+    entity_id: binary_sensor.nina_warnmeldungen
+    state:
+      - 'on'
