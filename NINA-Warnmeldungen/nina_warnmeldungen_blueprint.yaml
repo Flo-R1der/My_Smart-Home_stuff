@@ -83,8 +83,23 @@ trigger:
   to: 'on'
 
 variables:
-  trigger_severity: "{{ trigger.to_state.attributes.severity|default('none') }}"
-  trigger_headline: "{{ trigger.to_state.attributes.headline|default('empty') }}"
+  sensor: '{{ trigger.entity_id }}'
+  #old-style: binary_sensor.warning_meckenbeuren_bodenseekreis_baden_wurttemberg_1
+  #new-style: binary_sensor.meckenbeuren_bodenseekreis_baden_wurttemberg_warnung_1
+  trigger_severity: >-
+    {% set base = sensor[:-1]
+       | replace('binary_sensor.', 'sensor.') 
+       | replace('.warning_','.') 
+       | replace('_warnung_', '_') -%}
+    {% set severity = [base, 'schweregrad_', sensor[-1:]]|join -%} {{
+    states(severity) }}
+  trigger_headline: >-
+    {% set base = sensor[:-1] 
+       | replace('binary_sensor.', 'sensor.') 
+       | replace('.warning_','.') 
+       | replace('_warnung_', '_') -%}
+    {% set headline = [base, 'uberschrift_', sensor[-1:]]|join -%} {{
+    states(headline)}}
   hyperlink: https://warnung.bund.de/meldungen/{{trigger.to_state.attributes.id}}
   moderate_switch_enabled: !input moderate_switch_enabled
   severe_switch_enabled: !input severe_switch_enabled
