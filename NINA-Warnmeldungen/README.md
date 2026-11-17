@@ -50,8 +50,8 @@ Anschließend kann eine neue Automation unter Verwendung des Blueprints erstellt
 Für die Benutzeroberfläche gibt es viele Ansätze und es sind auch einige gute in dem zugehörigen **Home-Assistant Community Thread [Getting Started with NINA Integration](https://community.home-assistant.io/t/getting-started-with-nina-integration/388468)** dokumentiert. Dennoch möchte ich hier meinen Ansatz dokumentieren, der gerne 1:1 kopiert werden kann. Dieser funktioniert tatsächlich ohne Anpassungen, sofern die Voraussetzungen erfüllt sind.
 
 ### 📋 Voraussetzungen
-Zur Darstellung nutze ich die [lovelace-auto-entities](https://github.com/thomasloven/lovelace-auto-entities)-Card, welche einfach und unkompliziert die passenden Entitäten sammelt. So können jederzeit weitere Gebiete oder mehr Sensoren hinzugefügt werden, ohne jedes mal die Karte anpassen zu müssen.  
-Installiert wird diese am besten über [Home Assistant Community Store (HACS)](https://www.hacs.xyz/docs/use/), alternativ [manuell gemäß dieser Beschreibung](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins).
+Eine [Gruppe](https://www.home-assistant.io/integrations/group) mit allen Warn-Sensoren.  
+[![Open your Home Assistant instance and show an integration.](https://my.home-assistant.io/badges/integration.svg)](https://my.home-assistant.io/redirect/integration/?domain=group)
 
 ### 🛠️ Karte einrichten
 1. Voraussetzungen von oben sicherstellen
@@ -62,7 +62,7 @@ Installiert wird diese am besten über [Home Assistant Community Store (HACS)](h
     <img src="add_card_manual.png" width=600px/>
     </details>
 4. Kopiert Ihr den Inhalt meiner [lovelace.yaml](lovelace.yaml) in die sich öffnende Eingabemaske (alles ersetzen).
-5. Überlegt Ihr euch, ob Ihr mein `exclude`-Filter zu den Vorwarnungen beibehalten möchtet. Wenn nicht, den Abschnitt einfach löschen.
+5. Falls eure zuvor erstellte Gruppe nicht `binary_sensor.nina_warnmeldungen` heißt, muss dieser entity name entsprechend eurem Gruppennamen ersetzt werden (oben + unten).
 6. Ergebnis kontrollieren. Ich weiß, dafür müssen auch Warnungen anstehen. Zur Not könnt ihr auf der [Warnkarte des BBK](https://warnung.bund.de/meldungen) einen passenden Landkreis auswählen und diesen temporär zu Testzwecken zu eurem Home Assistant hinzufügen.  
 
 ![Beispiel-Screenshot](example_card.png)
