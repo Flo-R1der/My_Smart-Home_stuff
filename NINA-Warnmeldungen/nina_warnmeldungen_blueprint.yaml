@@ -119,15 +119,15 @@ condition:
     conditions:
     - condition: template
       value_template: >-
-        {{ trigger_severity == "Moderate" and moderate_switch_enabled }}
+        {{ trigger_severity|lower == "moderate" and moderate_switch_enabled }}
       alias: Severity = Moderate
     - condition: template
       value_template: >-
-        {{ trigger_severity == "Severe" and severe_switch_enabled }}
+        {{ trigger_severity|lower == "severe" and severe_switch_enabled }}
       alias: Severity = Severe
     - condition: template
       value_template: >-
-        {{ trigger_severity == "Extreme" and extreme_switch_enabled }}
+        {{ trigger_severity|lower == "extreme" and extreme_switch_enabled }}
       alias: Severity = Extreme
   - condition: and
     alias: Benutzerdefinierte Bedingungen
